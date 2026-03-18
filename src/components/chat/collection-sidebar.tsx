@@ -28,22 +28,44 @@ interface Props {
   onCategoryClick?: (key: string, data: any) => void;
 }
 
+/** Get category data - handle both nested and flat structures */
+function getCatData(key: string, progress: Record<string, any>): any {
+  // Try nested: progress.categories.KEY
+  if (progress?.categories?.[key]) return progress.categories[key];
+  // Try flat: progress.KEY
+  if (progress?.[key]) return progress[key];
+  return null;
+}
+
 function getStatus(key: string, progress: Record<string, any>): CategoryStatus {
-  const categories = progress?.categories ?? progress ?? {};
-  const val = categories[key];
-  const isComplete = progress?.is_complete || progress?.overall_progress === 100;
+  const val = getCatData(key, progress);
   if (!val) return 'not_started';
-  if (val.status === 'completed' || val.completed) return 'completed';
-  // If overall collection is complete, mark categories with data as completed
-  if (isComplete && val.fields_collected?.length > 0) return 'completed';
-  if (val.status === 'in_progress' || val.fields_collected?.length > 0) return 'in_progress';
+
+  // Explicit status field
+  if (val.status === 'completed' || val.status === 'done') return 'completed';
+
+  // Has collected fields = at least in_progress
+  if (val.fields_collected?.length > 0) {
+    // If overall is complete, mark as completed
+    if (progress?.is_complete || progress?.overall_progress === 100) return 'completed';
+    return 'in_progress';
+  }
+
+  if (val.status === 'in_progress') return 'in_progress';
   return 'not_started';
 }
 
 function overallPercent(progress: Record<string, any>): number {
-  if (progress.overall_progress !== undefined) return Math.round(progress.overall_progress);
-  const completed = CATEGORIES.filter((c) => getStatus(c.key, progress) === 'completed').length;
-  return Math.round((completed / CATEGORIES.length) * 100);
+  if (typeof progress?.overall_progress === 'number') return Math.round(progress.overall_progress);
+
+  // Count both completed and in_progress as collected
+  let collected = 0;
+  for (const cat of CATEGORIES) {
+    const s = getStatus(cat.key, progress);
+    if (s === 'completed') collected += 1;
+    else if (s === 'in_progress') collected += 0.7; // partially done
+  }
+  return Math.round((collected / CATEGORIES.length) * 100);
 }
 
 export default function CollectionSidebar({ progress, onCategoryClick }: Props) {
@@ -54,39 +76,47 @@ export default function CollectionSidebar({ progress, onCategoryClick }: Props) 
       <Text strong style={{ fontSize: 13, display: 'block', marginBottom: 8 }}>
         Thu thập thông tin
       </Text>
-      <Progress percent={percent} size="small" style={{ marginBottom: 16 }} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+        <Progress percent={percent} size="small" style={{ flex: 1, margin: 0 }} />
+        <Text type="secondary" style={{ fontSize: 11, whiteSpace: 'nowrap' }}>{percent}%</Text>
+      </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {CATEGORIES.map((cat) => {
           const status = getStatus(cat.key, progress);
+          const catData = getCatData(cat.key, progress);
           const icon =
             status === 'completed' ? (
-              <CheckCircleFilled style={{ color: '#52c41a', fontSize: 15 }} />
+              <CheckCircleFilled style={{ color: '#52c41a', fontSize: 14 }} />
             ) : status === 'in_progress' ? (
-              <LoadingOutlined style={{ color: '#1890ff', fontSize: 15 }} />
+              <LoadingOutlined style={{ color: '#4F46E5', fontSize: 14 }} />
             ) : (
-              <ClockCircleOutlined style={{ color: '#bfbfbf', fontSize: 15 }} />
+              <ClockCircleOutlined style={{ color: '#CBD5E1', fontSize: 14 }} />
             );
 
+          const statusLabel = status === 'completed' ? 'Đã thu thập' : status === 'in_progress' ? 'Đang thu thập' : 'Chưa thu thập';
+
           return (
-            <Tooltip key={cat.key} title={status === 'not_started' ? 'Chưa thu thập' : status === 'in_progress' ? 'Đang thu thập' : 'Hoàn thành'} placement="right">
+            <Tooltip key={cat.key} title={statusLabel} placement="right">
               <div
-                onClick={() => onCategoryClick?.(cat.key, (progress?.categories ?? progress)?.[cat.key])}
+                onClick={() => onCategoryClick?.(cat.key, catData)}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8,
-                  padding: '7px 8px',
-                  borderRadius: 6,
+                  padding: '6px 8px',
+                  borderRadius: 8,
                   cursor: onCategoryClick ? 'pointer' : 'default',
                   transition: 'background 0.15s',
-                  background: 'transparent',
+                  background: status === 'in_progress' ? '#EEF2FF' : 'transparent',
                 }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = '#f5f5f5'; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#F1F5F9'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = status === 'in_progress' ? '#EEF2FF' : 'transparent'; }}
               >
                 {icon}
-                <Text style={{ fontSize: 12, flex: 1 }}>{cat.label}</Text>
+                <Text style={{ fontSize: 12, flex: 1, color: status === 'not_started' ? '#94A3B8' : '#1E293B' }}>
+                  {cat.label}
+                </Text>
               </div>
             </Tooltip>
           );

@@ -1,96 +1,109 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Row, Col, Card, Statistic, Table, Tag, Typography, Spin } from 'antd';
+import { useEffect, useState, useMemo } from 'react';
+import { Row, Col, Card, Statistic, Typography, Spin, Table, Tag } from 'antd';
+import { ProjectOutlined, CheckCircleFilled, SyncOutlined, FundOutlined } from '@ant-design/icons';
+import dynamic from 'next/dynamic';
 import AppLayout from '@/components/layout/app-layout';
 import apiClient from '@/lib/api-client';
-import type { ColumnsType } from 'antd/es/table';
 
-const { Title } = Typography;
+const Pie = dynamic(() => import('@ant-design/charts').then(m => m.Pie), { ssr: false });
+const Column = dynamic(() => import('@ant-design/charts').then(m => m.Column), { ssr: false });
 
-const fmt = (v: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(v ?? 0);
+const { Title, Text } = Typography;
 
-const STATUS_COLOR: Record<string, string> = { PENDING: 'orange', SENT: 'blue', PAID: 'green', OVERDUE: 'red', CANCELLED: 'default' };
-const STATUS_LABEL: Record<string, string> = { PENDING: 'Chờ xử lý', SENT: 'Đã gửi', PAID: 'Đã thanh toán', OVERDUE: 'Quá hạn', CANCELLED: 'Huỷ' };
-
-interface MonthlyStat {
-  month: string;
-  total: number;
-  paid: number;
-  pending: number;
-  count: number;
-}
-
-interface Summary {
-  total_revenue?: number;
-  pending_amount?: number;
-  paid_amount?: number;
-  overdue_amount?: number;
-  by_status?: Record<string, number>;
-  monthly?: MonthlyStat[];
-}
+const STATUS_MAP: Record<string, { label: string; color: string }> = {
+  COLLECTING: { label: 'Thu thập', color: '#4096ff' },
+  COLLECTED: { label: 'Đã thu thập', color: '#36cfc9' },
+  REVIEWING: { label: 'Review', color: '#ffa940' },
+  APPROVED: { label: 'Đã duyệt', color: '#73d13d' },
+  IN_PROGRESS: { label: 'Triển khai', color: '#b37feb' },
+  COMPLETED: { label: 'Hoàn thành', color: '#52c41a' },
+  ON_HOLD: { label: 'Tạm dừng', color: '#d9d9d9' },
+};
 
 export default function FinanceReportsPage() {
-  const [summary, setSummary] = useState<Summary | null>(null);
+  const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiClient.get('/finance/summary').then((r) => {
-      setSummary(r.data?.data ?? r.data);
+    apiClient.get('/projects').then(r => {
+      setProjects(Array.isArray(r.data?.data) ? r.data.data : []);
     }).finally(() => setLoading(false));
   }, []);
 
-  const monthly: MonthlyStat[] = summary?.monthly ?? [];
+  const stats = useMemo(() => {
+    const byStatus: Record<string, number> = {};
+    projects.forEach(p => { byStatus[p.status] = (byStatus[p.status] || 0) + 1; });
+    return {
+      total: projects.length,
+      active: projects.filter(p => ['IN_PROGRESS', 'APPROVED'].includes(p.status)).length,
+      completed: projects.filter(p => p.status === 'COMPLETED').length,
+      estimatedBudget: projects.reduce((s, p) => s + (p.estimated_budget ?? 0), 0),
+      byStatus,
+    };
+  }, [projects]);
 
-  const monthlyColumns: ColumnsType<MonthlyStat> = [
-    { title: 'Tháng', dataIndex: 'month', key: 'month', width: 100 },
-    { title: 'Tổng phát sinh', dataIndex: 'total', key: 'total', render: (v) => fmt(v) },
-    { title: 'Đã thu', dataIndex: 'paid', key: 'paid', render: (v) => fmt(v) },
-    { title: 'Chờ thu', dataIndex: 'pending', key: 'pending', render: (v) => fmt(v) },
-    { title: 'Số lượng', dataIndex: 'count', key: 'count', width: 90 },
-  ];
+  const pieData = useMemo(() =>
+    Object.entries(stats.byStatus).map(([s, v]) => ({
+      type: STATUS_MAP[s]?.label ?? s, value: v, color: STATUS_MAP[s]?.color ?? '#d9d9d9',
+    })), [stats.byStatus]);
+
+  const statusTable = useMemo(() =>
+    Object.entries(stats.byStatus).map(([s, count]) => ({
+      key: s, status: s, label: STATUS_MAP[s]?.label ?? s, count,
+      pct: stats.total > 0 ? Math.round((count / stats.total) * 100) : 0,
+    })), [stats]);
 
   if (loading) return <AppLayout><div style={{ textAlign: 'center', paddingTop: 80 }}><Spin size="large" /></div></AppLayout>;
 
   return (
     <AppLayout>
-        <Title level={4}>Báo cáo tài chính</Title>
+      <Title level={4} style={{ marginBottom: 20 }}>Báo cáo tổng quan</Title>
 
-        <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-          <Col xs={24} sm={6}>
-            <Card><Statistic title="Tổng doanh thu" value={fmt(summary?.total_revenue ?? 0)} /></Card>
-          </Col>
-          <Col xs={24} sm={6}>
-            <Card><Statistic title="Đã thanh toán" value={fmt(summary?.paid_amount ?? 0)} valueStyle={{ color: '#52c41a' }} /></Card>
-          </Col>
-          <Col xs={24} sm={6}>
-            <Card><Statistic title="Chờ thanh toán" value={fmt(summary?.pending_amount ?? 0)} valueStyle={{ color: '#fa8c16' }} /></Card>
-          </Col>
-          <Col xs={24} sm={6}>
-            <Card><Statistic title="Quá hạn" value={fmt(summary?.overdue_amount ?? 0)} valueStyle={{ color: '#ff4d4f' }} /></Card>
-          </Col>
-        </Row>
+      <Row gutter={[16, 16]} style={{ marginBottom: 20 }}>
+        <Col xs={12} sm={6}>
+          <Card style={{ borderRadius: 10 }}><Statistic title="Tổng dự án" value={stats.total} prefix={<ProjectOutlined />} /></Card>
+        </Col>
+        <Col xs={12} sm={6}>
+          <Card style={{ borderRadius: 10 }}><Statistic title="Đang triển khai" value={stats.active} prefix={<SyncOutlined />} /></Card>
+        </Col>
+        <Col xs={12} sm={6}>
+          <Card style={{ borderRadius: 10 }}><Statistic title="Hoàn thành" value={stats.completed} prefix={<CheckCircleFilled />} valueStyle={{ color: '#10B981' }} /></Card>
+        </Col>
+        <Col xs={12} sm={6}>
+          <Card style={{ borderRadius: 10 }}><Statistic title="Budget ước tính" value={stats.estimatedBudget} prefix={<FundOutlined />} suffix="₫" /></Card>
+        </Col>
+      </Row>
 
-        {summary?.by_status && (
-          <Card title="Theo trạng thái" style={{ marginBottom: 24 }}>
-            <Row gutter={[16, 16]}>
-              {Object.entries(summary.by_status).map(([status, amount]) => (
-                <Col key={status} xs={12} sm={6}>
-                  <Statistic
-                    title={<Tag color={STATUS_COLOR[status]}>{STATUS_LABEL[status] ?? status}</Tag>}
-                    value={fmt(amount)}
-                  />
-                </Col>
-              ))}
-            </Row>
+      <Row gutter={[16, 16]} style={{ marginBottom: 20 }}>
+        <Col xs={24} md={12}>
+          <Card title="Phân bổ trạng thái" style={{ borderRadius: 10 }}>
+            {pieData.length > 0 ? (
+              <Pie data={pieData} angleField="value" colorField="type" radius={0.85} innerRadius={0.6} height={240}
+                color={pieData.map(d => d.color)}
+                legend={{ color: { position: 'bottom' } }}
+                label={{ text: 'value', style: { fontSize: 13, fontWeight: 600, fill: '#fff' }, position: 'inside' }}
+              />
+            ) : <Text type="secondary">Chưa có dữ liệu</Text>}
           </Card>
-        )}
-
-        {monthly.length > 0 && (
-          <Card title="Theo tháng">
-            <Table dataSource={monthly} columns={monthlyColumns} rowKey="month" size="small" pagination={false} />
+        </Col>
+        <Col xs={24} md={12}>
+          <Card title="Số dự án theo trạng thái" style={{ borderRadius: 10 }}>
+            <Table
+              dataSource={statusTable}
+              rowKey="key"
+              size="small"
+              pagination={false}
+              columns={[
+                { title: 'Trạng thái', key: 'label', render: (_, r) => <Tag color={STATUS_MAP[r.status]?.color}>{r.label}</Tag> },
+                { title: 'Số lượng', dataIndex: 'count', key: 'count', width: 90 },
+                { title: 'Tỷ lệ', key: 'pct', width: 80, render: (_, r) => `${r.pct}%` },
+              ]}
+            />
           </Card>
-        )}
+        </Col>
+      </Row>
     </AppLayout>
   );
 }

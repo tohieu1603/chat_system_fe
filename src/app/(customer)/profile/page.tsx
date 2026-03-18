@@ -90,7 +90,7 @@ export default function ProfilePage() {
           <Card bodyStyle={{ padding: 0 }} style={cardStyle}>
             {/* Banner + Avatar */}
             <div style={{
-              background: 'linear-gradient(135deg, #1677ff 0%, #4096ff 50%, #69b1ff 100%)',
+              background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #A78BFA 100%)',
               height: 100, borderRadius: '10px 10px 0 0', position: 'relative',
             }}>
               <div style={{

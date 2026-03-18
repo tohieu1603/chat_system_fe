@@ -35,7 +35,10 @@ const MENU_BY_ROLE: Record<string, MenuProps['items']> = {
     { key: '/admin', icon: <DashboardOutlined />, label: 'Dashboard' },
     { key: '/admin/customers', icon: <TeamOutlined />, label: 'Khách hàng' },
     { key: '/admin/projects', icon: <ProjectOutlined />, label: 'Dự án' },
+    { key: '/admin/tasks', icon: <CheckSquareOutlined />, label: 'Tất cả Tasks' },
     { key: '/admin/team', icon: <UserOutlined />, label: 'Team' },
+    { key: '/finance/invoices', icon: <FileTextOutlined />, label: 'Hóa đơn' },
+    { key: '/finance/reports', icon: <BarChartOutlined />, label: 'Báo cáo' },
     { key: '/admin/settings', icon: <SettingOutlined />, label: 'Cài đặt' },
   ],
   DEV: [
@@ -73,10 +76,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
           theme="light"
           breakpoint="lg"
           collapsedWidth="0"
-          style={{ boxShadow: '2px 0 6px rgba(0,21,41,0.05)' }}
+          width={220}
+          style={{ background: '#fff', borderRight: '1px solid #E2E8F0' }}
         >
-          <div style={{ padding: '16px', textAlign: 'center', borderBottom: '1px solid #f0f0f0' }}>
-            <Text strong style={{ color: '#1890ff', fontSize: 13 }}>
+          <div style={{ padding: '20px 16px', textAlign: 'center' }}>
+            <Text strong style={{ color: '#4F46E5', fontSize: 15, letterSpacing: '-0.02em' }}>
               AI Req Collector
             </Text>
           </div>
@@ -97,7 +101,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'flex-end',
-              boxShadow: '0 1px 4px rgba(0,21,41,0.08)',
+              borderBottom: '1px solid #E2E8F0',
+              height: 56,
             }}
           >
             <Space size={8}>
@@ -118,7 +123,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
             </Space>
           </Header>
 
-          <Content style={{ margin: 24, minHeight: 280 }}>{children}</Content>
+          <Content style={{ margin: 24, minHeight: 280, background: '#F8FAFC' }}>{children}</Content>
         </Layout>
     </Layout>
   );

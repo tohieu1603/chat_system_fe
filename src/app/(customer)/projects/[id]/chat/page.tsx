@@ -143,7 +143,10 @@ function ChatInner() {
     setDrawerOpen(true);
   }, []);
 
-  const progress = currentProject?.collection_progress ?? collectionProgress ?? {};
+  // Prefer realtime WS data over stale project data
+  const progress = (collectionProgress && Object.keys(collectionProgress).length > 0)
+    ? collectionProgress
+    : currentProject?.collection_progress ?? {};
   const overallProgress = typeof progress.overall_progress === 'number' ? progress.overall_progress : 0;
 
   return (

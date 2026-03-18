@@ -24,7 +24,11 @@ export const useChatStore = create<ChatState>((set) => ({
   collectionProgress: {},
   streamingContent: '',
 
-  addMessage: (msg) => set((s) => ({ messages: [...s.messages, msg] })),
+  addMessage: (msg) => set((s) => {
+    // Deduplicate by id
+    if (msg.id && s.messages.some(m => m.id === msg.id)) return s;
+    return { messages: [...s.messages, msg] };
+  }),
   setMessages: (msgs) => set({ messages: msgs }),
   setAiTyping: (val) => set({ isAiTyping: val }),
   setConnected: (val) => set({ isConnected: val }),

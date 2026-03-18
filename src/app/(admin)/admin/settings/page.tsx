@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { Card, Form, Input, InputNumber, Switch, Button, Typography, Divider, Row, Col, App, Space } from 'antd';
-import { SaveOutlined, SettingOutlined, RobotOutlined, BellOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
+import { useState, useEffect } from 'react';
+import { Card, Form, Input, InputNumber, Switch, Button, Typography, Row, Col, App, Statistic, Descriptions } from 'antd';
+import { SaveOutlined, SettingOutlined, RobotOutlined, BellOutlined, SafetyCertificateOutlined, InfoCircleOutlined, TeamOutlined } from '@ant-design/icons';
+import apiClient from '@/lib/api-client';
 import AppLayout from '@/components/layout/app-layout';
 
 const { Title, Text } = Typography;
@@ -13,6 +14,16 @@ export default function AdminSettingsPage() {
   const { message } = App.useApp();
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
+  const [userStats, setUserStats] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    apiClient.get('/users').then(r => {
+      const users = r.data?.data?.users ?? r.data?.data ?? [];
+      const counts: Record<string, number> = {};
+      (Array.isArray(users) ? users : []).forEach((u: any) => { counts[u.role] = (counts[u.role] || 0) + 1; });
+      setUserStats(counts);
+    }).catch(() => {});
+  }, []);
 
   async function onSave() {
     setLoading(true);
@@ -34,6 +45,37 @@ export default function AdminSettingsPage() {
         <Title level={4} style={{ margin: 0 }}>Cài đặt hệ thống</Title>
         <Button type="primary" icon={<SaveOutlined />} loading={loading} onClick={onSave}>Lưu thay đổi</Button>
       </div>
+
+      {/* System Info + User Stats */}
+      <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+        <Col xs={24} lg={12}>
+          <Card title={<><InfoCircleOutlined style={{ marginRight: 8, color: '#4F46E5' }} />Thông tin hệ thống</>} style={cardStyle}>
+            <Descriptions column={1} size="small">
+              <Descriptions.Item label="Ứng dụng">AI Requirements Collector</Descriptions.Item>
+              <Descriptions.Item label="Phiên bản">1.0.0</Descriptions.Item>
+              <Descriptions.Item label="Môi trường">Development</Descriptions.Item>
+              <Descriptions.Item label="Backend">NestJS + TypeORM + PostgreSQL</Descriptions.Item>
+              <Descriptions.Item label="AI Model">Kimi K2.5</Descriptions.Item>
+            </Descriptions>
+          </Card>
+        </Col>
+        <Col xs={24} lg={12}>
+          <Card title={<><TeamOutlined style={{ marginRight: 8, color: '#52c41a' }} />Người dùng</>} style={cardStyle}>
+            <Row gutter={16}>
+              {[
+                { label: 'Khách hàng', key: 'CUSTOMER', color: '#4F46E5' },
+                { label: 'Admin', key: 'ADMIN', color: '#EF4444' },
+                { label: 'Dev', key: 'DEV', color: '#7C3AED' },
+                { label: 'Finance', key: 'FINANCE', color: '#10B981' },
+              ].map(r => (
+                <Col span={6} key={r.key}>
+                  <Statistic title={r.label} value={userStats[r.key] ?? 0} valueStyle={{ color: r.color, fontSize: 20 }} />
+                </Col>
+              ))}
+            </Row>
+          </Card>
+        </Col>
+      </Row>
 
       <Form form={form} layout="vertical" initialValues={{
         ai_model: 'kimi-k2.5',

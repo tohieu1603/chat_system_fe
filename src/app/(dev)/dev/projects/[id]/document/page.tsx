@@ -73,7 +73,11 @@ export default function DevDocumentPage() {
   }, [id]);
 
   const reqJson = doc?.requirement_json;
-  const sections = reqJson?.sections ? Object.entries(reqJson.sections) as [string, any][] : [];
+  // Handle both { sections: {...} } and flat { KEY: {...} } structures
+  const sectionsObj = reqJson?.sections ?? reqJson ?? {};
+  const sections = Object.entries(sectionsObj).filter(([k]) =>
+    !['project_name', 'project_code', 'generated_at', 'summary', 'overall_progress', 'is_complete', 'completed_at', 'categories'].includes(k)
+  ) as [string, any][];
   const hasDoc = reqJson && sections.length > 0;
 
   if (loading) return <AppLayout><div style={{ textAlign: 'center', paddingTop: 80 }}><Spin size="large" /></div></AppLayout>;

@@ -106,7 +106,13 @@ export default function AdminProjectDetailPage() {
 
         <Space>
           <Button icon={<MessageOutlined />} onClick={() => router.push(`/admin/projects/${id}/chat`)}>Xem chat</Button>
-          <Button icon={<FileTextOutlined />} onClick={() => router.push(`/admin/projects/${id}/review`)}>Xem xét yêu cầu</Button>
+          {(project.status === 'COLLECTED' || project.status === 'REVIEWING') ? (
+            <Button type="primary" icon={<FileTextOutlined />} onClick={() => router.push(`/admin/projects/${id}/review`)}>
+              Review & Phê duyệt
+            </Button>
+          ) : (
+            <Button icon={<FileTextOutlined />} onClick={() => router.push(`/admin/projects/${id}/review`)}>Xem tài liệu yêu cầu</Button>
+          )}
           <Button icon={<CheckSquareOutlined />} onClick={() => router.push(`/admin/projects/${id}/tasks`)}>Tasks</Button>
         </Space>
 

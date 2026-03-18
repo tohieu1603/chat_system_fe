@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useState } from 'react';
 import { Button, Input } from 'antd';
 import { SendOutlined } from '@ant-design/icons';
 
@@ -10,17 +10,13 @@ interface Props {
 }
 
 export default function MessageInput({ onSend, disabled }: Props) {
-  const valueRef = useRef('');
-  const textareaRef = useRef<any>(null);
+  const [value, setValue] = useState('');
 
   function handleSend() {
-    const text = valueRef.current.trim();
+    const text = value.trim();
     if (!text || disabled) return;
     onSend(text);
-    valueRef.current = '';
-    if (textareaRef.current) {
-      textareaRef.current.resizableTextArea.textArea.value = '';
-    }
+    setValue('');
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -33,11 +29,11 @@ export default function MessageInput({ onSend, disabled }: Props) {
   return (
     <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', padding: '12px 16px', background: '#fff', borderTop: '1px solid #f0f0f0' }}>
       <Input.TextArea
-        ref={textareaRef}
+        value={value}
         placeholder={disabled ? 'AI đang trả lời...' : 'Nhập tin nhắn... (Enter để gửi, Shift+Enter xuống dòng)'}
         autoSize={{ minRows: 1, maxRows: 5 }}
         disabled={disabled}
-        onChange={(e) => { valueRef.current = e.target.value; }}
+        onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         style={{ flex: 1, borderRadius: 8, resize: 'none' }}
       />

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, Button, Modal, Form, Input, Select, Drawer, Tag, Typography, message, Spin } from 'antd';
-import { PlusOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { PlusOutlined, ArrowLeftOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { useRouter, useParams } from 'next/navigation';
 import AppLayout from '@/components/layout/app-layout';
 import apiClient from '@/lib/api-client';
@@ -26,6 +26,7 @@ export default function AdminTasksPage() {
   const [tasks, setTasks] = useState<TaskItem[]>([]);
   const [members, setMembers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
   const [form] = Form.useForm();
@@ -68,7 +69,28 @@ export default function AdminTasksPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <Button icon={<ArrowLeftOutlined />} onClick={() => router.push(`/admin/projects/${projectId}`)} />
           <Title level={4} style={{ margin: 0 }}>Kanban Tasks</Title>
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => setAddOpen(true)} style={{ marginLeft: 'auto' }}>Thêm task</Button>
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+            <Button
+              icon={<ThunderboltOutlined />}
+              loading={generating}
+              onClick={async () => {
+                setGenerating(true);
+                try {
+                  const res = await apiClient.post(`/projects/${projectId}/tasks/generate`);
+                  const count = res.data?.data?.length ?? 0;
+                  message.success(`AI đã tạo ${count} tasks và giao cho dev`);
+                  load();
+                } catch (e: any) {
+                  message.error(e.response?.data?.message ?? 'Lỗi tạo tasks');
+                } finally {
+                  setGenerating(false);
+                }
+              }}
+            >
+              AI tạo tasks
+            </Button>
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => setAddOpen(true)}>Thêm task</Button>
+          </div>
         </div>
 
         <div style={{ display: 'flex', gap: 16, overflowX: 'auto' }}>
