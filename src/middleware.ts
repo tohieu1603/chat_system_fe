@@ -5,8 +5,11 @@ const PUBLIC_ROUTES = new Set(['/', '/login', '/register', '/forgot-password', '
 const ROLE_PREFIX: Record<string, string> = {
   ADMIN: '/admin',
   DEV: '/dev',
-  FINANCE: '/finance',
+  CANDIDATE: '/tong-quan',
 };
+
+/** Routes accessible only to CANDIDATE role */
+const CANDIDATE_ROUTES = ['/tong-quan', '/gioi-thieu', '/doi-nhom', '/ho-so', '/ke-hoach', '/tro-ly-ai'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

@@ -63,12 +63,11 @@ export default function AdminSettingsPage() {
           <Card title={<><TeamOutlined style={{ marginRight: 8, color: '#52c41a' }} />Người dùng</>} style={cardStyle}>
             <Row gutter={16}>
               {[
-                { label: 'Khách hàng', key: 'CUSTOMER', color: '#4F46E5' },
                 { label: 'Admin', key: 'ADMIN', color: '#EF4444' },
                 { label: 'Dev', key: 'DEV', color: '#7C3AED' },
-                { label: 'Finance', key: 'FINANCE', color: '#10B981' },
+                { label: 'Ứng viên', key: 'CANDIDATE', color: '#4F46E5' },
               ].map(r => (
-                <Col span={6} key={r.key}>
+                <Col span={8} key={r.key}>
                   <Statistic title={r.label} value={userStats[r.key] ?? 0} valueStyle={{ color: r.color, fontSize: 20 }} />
                 </Col>
               ))}

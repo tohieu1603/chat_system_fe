@@ -6,7 +6,17 @@ export interface User {
   full_name: string;
   phone?: string;
   avatar_url?: string;
-  role: 'CUSTOMER' | 'ADMIN' | 'DEV' | 'FINANCE';
+  role: 'ADMIN' | 'CANDIDATE' | 'DEV';
+  /* Candidate-specific fields */
+  university?: string;
+  year_of_study?: string;
+  major?: string;
+  bio?: string;
+  skills?: string[];
+  cv_url?: string;
+  linkedin_url?: string;
+  motivation?: string;
+  hours_per_week?: string;
   company_name?: string;
   company_size?: string;
   industry?: string;

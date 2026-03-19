@@ -9,10 +9,9 @@ import { useAuthStore } from '@/stores/auth-store';
 const { Title, Text } = Typography;
 
 const ROLE_REDIRECT: Record<string, string> = {
-  CUSTOMER: '/dashboard',
   ADMIN: '/admin',
   DEV: '/dev',
-  FINANCE: '/finance',
+  CANDIDATE: '/tong-quan',
 };
 
 export default function LoginPage() {

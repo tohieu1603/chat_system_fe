@@ -12,6 +12,11 @@ import {
   LogoutOutlined,
   DownOutlined,
   FileTextOutlined,
+  CalendarOutlined,
+  SolutionOutlined,
+  UserAddOutlined,
+  InfoCircleOutlined,
+  RobotOutlined,
 } from '@ant-design/icons';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
@@ -26,11 +31,6 @@ interface AppLayoutProps {
 }
 
 const MENU_BY_ROLE: Record<string, MenuProps['items']> = {
-  CUSTOMER: [
-    { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
-    { key: '/projects', icon: <ProjectOutlined />, label: 'Dự án' },
-    { key: '/profile', icon: <UserOutlined />, label: 'Hồ sơ' },
-  ],
   ADMIN: [
     { key: '/admin', icon: <DashboardOutlined />, label: 'Dashboard' },
     { key: '/admin/customers', icon: <TeamOutlined />, label: 'Khách hàng' },
@@ -40,16 +40,22 @@ const MENU_BY_ROLE: Record<string, MenuProps['items']> = {
     { key: '/finance/invoices', icon: <FileTextOutlined />, label: 'Hóa đơn' },
     { key: '/finance/reports', icon: <BarChartOutlined />, label: 'Báo cáo' },
     { key: '/admin/settings', icon: <SettingOutlined />, label: 'Cài đặt' },
+    { type: 'divider' },
+    { key: '/admin/dot-tuyen', icon: <CalendarOutlined />, label: 'Đợt tuyển' },
+    { key: '/admin/ke-hoach', icon: <SolutionOutlined />, label: 'Kế hoạch KD' },
+    { key: '/admin/ung-vien', icon: <UserAddOutlined />, label: 'Ứng viên' },
   ],
   DEV: [
     { key: '/dev', icon: <DashboardOutlined />, label: 'Dashboard' },
     { key: '/dev/tasks', icon: <CheckSquareOutlined />, label: 'Tasks' },
   ],
-  FINANCE: [
-    { key: '/finance', icon: <DashboardOutlined />, label: 'Dashboard' },
-    { key: '/finance/projects', icon: <ProjectOutlined />, label: 'Dự án' },
-    { key: '/finance/invoices', icon: <FileTextOutlined />, label: 'Hóa đơn' },
-    { key: '/finance/reports', icon: <BarChartOutlined />, label: 'Báo cáo' },
+  CANDIDATE: [
+    { key: '/tong-quan', icon: <DashboardOutlined />, label: 'Tổng quan' },
+    { key: '/gioi-thieu', icon: <InfoCircleOutlined />, label: 'Giới thiệu' },
+    { key: '/doi-nhom', icon: <TeamOutlined />, label: 'Đội nhóm' },
+    { key: '/ho-so', icon: <UserOutlined />, label: 'Hồ sơ' },
+    { key: '/ke-hoach', icon: <FileTextOutlined />, label: 'Kế hoạch' },
+    { key: '/tro-ly-ai', icon: <RobotOutlined />, label: 'Trợ lý AI' },
   ],
 };
 
@@ -58,7 +64,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const pathname = usePathname();
   const { user, logout, isLoading } = useAuthStore();
 
-  const menuItems = (user?.role ? MENU_BY_ROLE[user.role] : MENU_BY_ROLE.CUSTOMER) ?? [];
+  const menuItems = (user?.role ? MENU_BY_ROLE[user.role] : MENU_BY_ROLE.CANDIDATE) ?? [];
 
   const userMenuItems: MenuProps['items'] = [
     {
@@ -81,7 +87,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         >
           <div style={{ padding: '20px 16px', textAlign: 'center' }}>
             <Text strong style={{ color: '#4F46E5', fontSize: 15, letterSpacing: '-0.02em' }}>
-              AI Req Collector
+              Flow Corp
             </Text>
           </div>
           <Menu

@@ -19,7 +19,7 @@ const STATUS_LABEL: Record<ProjectStatus, string> = {
   APPROVED: 'Đã duyệt', IN_PROGRESS: 'Đang thực hiện', COMPLETED: 'Hoàn thành', ON_HOLD: 'Tạm dừng',
 };
 const PRIORITY_COLOR: Record<string, string> = { LOW: 'default', MEDIUM: 'blue', HIGH: 'orange', URGENT: 'red' };
-const ROLES = ['ADMIN', 'DEV', 'FINANCE'];
+const ROLES = ['ADMIN', 'DEV'];
 
 interface Member { user_id: string; role: string; user?: User; }
 

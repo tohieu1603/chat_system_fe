@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { Button, Empty, Space, Typography, Spin, App, Card, Descriptions, Tag, List, Divider, Alert } from 'antd';
 import { DownloadOutlined, ArrowLeftOutlined, FileMarkdownOutlined, CheckCircleFilled } from '@ant-design/icons';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import AppLayout from '@/components/layout/app-layout';
 import apiClient from '@/lib/api-client';
 import type { ApiResponse } from '@/types';
@@ -58,9 +58,13 @@ function renderValue(val: unknown): React.ReactNode {
   return String(val);
 }
 
-export default function DevDocumentPage() {
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function DevDocumentPage({ params }: PageProps) {
+  const { id } = use(params);
   const router = useRouter();
-  const { id } = useParams() as { id: string };
   const { message } = App.useApp();
   const [doc, setDoc] = useState<DocResponse | null>(null);
   const [loading, setLoading] = useState(true);

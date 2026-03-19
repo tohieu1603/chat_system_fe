@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { Tag, Button, Card, Select, Input, List, Typography, Spin, Row, Col, Progress, Tooltip, message, Avatar } from 'antd';
 import {
   ArrowLeftOutlined, SendOutlined, FileTextOutlined, ClockCircleOutlined,
   CheckCircleFilled, SyncOutlined, ExclamationCircleFilled, StopOutlined,
   CodeOutlined, FieldTimeOutlined,
 } from '@ant-design/icons';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import AppLayout from '@/components/layout/app-layout';
 import apiClient from '@/lib/api-client';
 import type { TaskItem } from '@/types';
@@ -37,9 +37,13 @@ const ALLOWED_TRANSITIONS: Record<string, string[]> = {
 
 interface Comment { id: string; content: string; created_at: string; user?: { full_name: string }; }
 
-export default function DevTaskDetailPage() {
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function DevTaskDetailPage({ params }: PageProps) {
+  const { id } = use(params);
   const router = useRouter();
-  const { id } = useParams() as { id: string };
   const [task, setTask] = useState<TaskItem | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);

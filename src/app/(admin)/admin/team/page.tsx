@@ -10,8 +10,8 @@ import type { ColumnsType } from 'antd/es/table';
 
 const { Title } = Typography;
 
-const ROLE_COLOR: Record<string, string> = { ADMIN: 'red', DEV: 'blue', FINANCE: 'green' };
-const INTERNAL_ROLES = ['ADMIN', 'DEV', 'FINANCE'];
+const ROLE_COLOR: Record<string, string> = { ADMIN: 'red', DEV: 'blue' };
+const INTERNAL_ROLES = ['ADMIN', 'DEV'];
 
 export default function TeamPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -23,7 +23,7 @@ export default function TeamPage() {
     apiClient.get('/users').then((r) => {
       const d = r.data?.data ?? r.data;
       const all = Array.isArray(d) ? d : d?.users ?? [];
-      setUsers(all.filter((u: User) => u.role !== 'CUSTOMER'));
+      setUsers(all.filter((u: User) => u.role !== 'CANDIDATE'));
     }).finally(() => setLoading(false));
   };
 
