@@ -33,11 +33,8 @@ interface AppLayoutProps {
 const MENU_BY_ROLE: Record<string, MenuProps['items']> = {
   ADMIN: [
     { key: '/admin', icon: <DashboardOutlined />, label: 'Dashboard' },
-    { key: '/admin/customers', icon: <TeamOutlined />, label: 'Khách hàng' },
-    { key: '/admin/projects', icon: <ProjectOutlined />, label: 'Dự án' },
     { key: '/admin/tasks', icon: <CheckSquareOutlined />, label: 'Tất cả Tasks' },
     { key: '/admin/team', icon: <UserOutlined />, label: 'Team' },
-    { key: '/finance/invoices', icon: <FileTextOutlined />, label: 'Hóa đơn' },
     { key: '/finance/reports', icon: <BarChartOutlined />, label: 'Báo cáo' },
     { key: '/admin/settings', icon: <SettingOutlined />, label: 'Cài đặt' },
     { type: 'divider' },

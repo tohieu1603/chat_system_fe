@@ -18,57 +18,106 @@ export default function MemberList({ members }: MemberListProps) {
   const { user } = useAuthStore();
   const { message } = App.useApp();
 
-  const currentMember = members.find(m => m.user_id === user?.id);
+  const currentMember = members.find((m) => m.user_id === user?.id);
   const isLeader = currentMember?.role === 'LEADER';
 
   const handleRemove = async (memberId: string) => {
     try {
       await removeMember(memberId);
-      message.success('Đã xóa thành viên');
+      message.success('Da xoa thanh vien');
     } catch {
-      message.error('Không thể xóa thành viên');
+      message.error('Khong the xoa thanh vien');
     }
   };
 
+  const avatarColors = [
+    '#4F46E5', '#059669', '#7C3AED', '#F59E0B',
+    '#DC2626', '#0891B2', '#D97706',
+  ];
+
   const columns: ColumnsType<TeamMember> = [
     {
-      title: 'Thành viên',
+      title: (
+        <Text type="secondary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+          Thanh vien
+        </Text>
+      ),
       dataIndex: 'user',
       key: 'user',
-      render: (_, record) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <Avatar
-            size="small"
-            src={record.user?.avatar_url}
-            icon={!record.user?.avatar_url ? <UserOutlined /> : undefined}
-          />
-          <div>
-            <Text strong style={{ fontSize: 13 }}>
-              {record.user?.full_name ?? 'Chưa cập nhật'}
-            </Text>
-            <Text type="secondary" style={{ fontSize: 11, display: 'block' }}>
-              {record.user?.email}
-            </Text>
+      render: (_, record, idx) => {
+        const name = record.user?.full_name ?? 'Chua cap nhat';
+        const initials = name
+          .split(' ')
+          .filter(Boolean)
+          .slice(-2)
+          .map((w: string) => w[0]?.toUpperCase() ?? '')
+          .join('');
+        const color = avatarColors[idx % avatarColors.length];
+
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Avatar
+              size={38}
+              src={record.user?.avatar_url}
+              style={
+                !record.user?.avatar_url
+                  ? { background: color, fontSize: 14, fontWeight: 600 }
+                  : undefined
+              }
+              icon={!record.user?.avatar_url && !initials ? <UserOutlined /> : undefined}
+            >
+              {!record.user?.avatar_url && initials ? initials : undefined}
+            </Avatar>
+            <div>
+              <Text strong style={{ fontSize: 13, display: 'block', color: '#111827' }}>
+                {name}
+              </Text>
+              <Text type="secondary" style={{ fontSize: 11, display: 'block' }}>
+                {record.user?.email}
+              </Text>
+            </div>
           </div>
-        </div>
-      ),
+        );
+      },
     },
     {
-      title: 'Vai trò',
+      title: (
+        <Text type="secondary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+          Vai tro
+        </Text>
+      ),
       dataIndex: 'role',
       key: 'role',
-      width: 120,
-      render: (role: 'LEADER' | 'MEMBER') => (
-        <Tag
-          icon={role === 'LEADER' ? <CrownOutlined /> : undefined}
-          color={role === 'LEADER' ? 'gold' : 'default'}
-        >
-          {role === 'LEADER' ? 'Trưởng nhóm' : 'Thành viên'}
-        </Tag>
-      ),
+      width: 140,
+      render: (role: 'LEADER' | 'MEMBER') =>
+        role === 'LEADER' ? (
+          <Tag
+            icon={<CrownOutlined />}
+            color="gold"
+            style={{ borderRadius: 8, padding: '2px 10px', fontWeight: 600 }}
+          >
+            Truong nhom
+          </Tag>
+        ) : (
+          <Tag
+            style={{
+              borderRadius: 8,
+              padding: '2px 10px',
+              background: '#F8FAFC',
+              color: '#64748B',
+              border: '1px solid #E2E8F0',
+            }}
+          >
+            Thanh vien
+          </Tag>
+        ),
     },
     {
-      title: 'Tham gia',
+      title: (
+        <Text type="secondary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+          Tham gia
+        </Text>
+      ),
       dataIndex: 'joined_at',
       key: 'joined_at',
       width: 120,
@@ -83,14 +132,14 @@ export default function MemberList({ members }: MemberListProps) {
           {
             title: '',
             key: 'action',
-            width: 60,
+            width: 52,
             render: (_: any, record: TeamMember) =>
               record.role !== 'LEADER' ? (
                 <Popconfirm
-                  title="Xóa thành viên này?"
+                  title="Xoa thanh vien nay?"
                   onConfirm={() => handleRemove(record.id)}
-                  okText="Xóa"
-                  cancelText="Hủy"
+                  okText="Xoa"
+                  cancelText="Huy"
                   okButtonProps={{ danger: true }}
                 >
                   <Button
@@ -99,6 +148,7 @@ export default function MemberList({ members }: MemberListProps) {
                     icon={<DeleteOutlined />}
                     size="small"
                     loading={isLoading}
+                    style={{ opacity: 0.6 }}
                   />
                 </Popconfirm>
               ) : null,
@@ -113,8 +163,9 @@ export default function MemberList({ members }: MemberListProps) {
       dataSource={members}
       rowKey="id"
       pagination={false}
-      size="small"
-      style={{ borderRadius: 8 }}
+      size="middle"
+      style={{ borderRadius: 16 }}
+      rowClassName={(_, idx) => (idx % 2 === 1 ? '' : '')}
     />
   );
 }

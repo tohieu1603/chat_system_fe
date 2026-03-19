@@ -43,8 +43,20 @@ apiClient.interceptors.response.use(
         }
       }
     }
+    // Extract backend error message for better UX
+    const msg = error.response?.data?.message;
+    if (msg) {
+      error.userMessage = typeof msg === 'string' ? msg : Array.isArray(msg) ? msg.join(', ') : 'Có lỗi xảy ra';
+    }
     return Promise.reject(error);
   },
 );
+
+/** Extract user-friendly error message from API error */
+export function getErrorMessage(err: any, fallback = 'Có lỗi xảy ra'): string {
+  const msg = err?.userMessage || err?.response?.data?.message;
+  if (!msg) return fallback;
+  return typeof msg === 'string' ? msg : Array.isArray(msg) ? msg.join(', ') : fallback;
+}
 
 export default apiClient;

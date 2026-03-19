@@ -55,7 +55,7 @@ export default function BatchFormModal({ open, editing, onClose, onSaved }: Batc
       onClose();
     } catch (err: any) {
       if (err?.errorFields) return; // validation error
-      message.error('Lưu thất bại');
+      message.error(err?.response?.data?.message ?? 'Lưu thất bại');
     }
   };
 

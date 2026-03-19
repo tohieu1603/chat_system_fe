@@ -55,8 +55,8 @@ export default function AssessmentForm({ userId, existing, onSaved }: Assessment
       const saved = res.data?.data ?? res.data;
       message.success('Đã lưu đánh giá năng lực');
       onSaved?.(saved);
-    } catch {
-      message.error('Lưu đánh giá thất bại');
+    } catch (err: any) {
+      message.error(err?.response?.data?.message ?? 'Lưu đánh giá thất bại');
     } finally {
       setSubmitting(false);
     }

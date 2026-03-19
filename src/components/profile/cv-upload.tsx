@@ -35,7 +35,7 @@ export default function CvUpload({ value, onChange }: CvUploadProps) {
     const formData = new FormData();
     formData.append('file', file as File);
     try {
-      const { data } = await apiClient.post<ApiResponse<{ url: string }>>('/upload/cv', formData, {
+      const { data } = await apiClient.post<ApiResponse<{ url: string }>>('/files/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: e => onProgress?.({ percent: Math.round((e.loaded / (e.total ?? 1)) * 100) }),
       });

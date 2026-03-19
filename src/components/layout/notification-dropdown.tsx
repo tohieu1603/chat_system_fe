@@ -1,16 +1,19 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { Badge, Dropdown, Button, List, Typography, Empty, App } from 'antd';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { Badge, Dropdown, Button, List, Typography, Empty } from 'antd';
 import { BellOutlined } from '@ant-design/icons';
 import apiClient from '@/lib/api-client';
 import type { Notification } from '@/types';
 
 const { Text } = Typography;
 
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:4000/ws';
+
 export default function NotificationDropdown() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
+  const wsRef = useRef<WebSocket | null>(null);
 
   const load = useCallback(() => {
     apiClient.get('/notifications?limit=10').then((r) => {
@@ -19,21 +22,48 @@ export default function NotificationDropdown() {
     }).catch(() => {});
   }, []);
 
+  // Initial load
   useEffect(() => { load(); }, [load]);
+
+  // WebSocket realtime
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    if (!token) return;
+
+    const wsUrl = `${WS_URL}/notifications?token=${token}`;
+    const ws = new WebSocket(wsUrl);
+    wsRef.current = ws;
+
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.event === 'notification' && msg.data) {
+          setNotifications((prev) => [msg.data, ...prev].slice(0, 20));
+        }
+      } catch {}
+    };
+
+    ws.onclose = () => { wsRef.current = null; };
+
+    return () => {
+      ws.close();
+      wsRef.current = null;
+    };
+  }, []);
 
   const unread = notifications.filter((n) => !n.is_read).length;
 
   const handleRead = async (n: Notification) => {
     if (n.is_read) return;
     try {
-      await apiClient.patch(`/notifications/${n.id}/read`);
+      await apiClient.put(`/notifications/${n.id}/read`);
       setNotifications((prev) => prev.map((x) => x.id === n.id ? { ...x, is_read: true } : x));
     } catch {}
   };
 
   const handleReadAll = async () => {
     try {
-      await apiClient.patch('/notifications/read-all');
+      await apiClient.put('/notifications/read-all');
       setNotifications((prev) => prev.map((x) => ({ ...x, is_read: true })));
     } catch {}
   };
@@ -84,7 +114,7 @@ export default function NotificationDropdown() {
     <Dropdown
       open={open}
       onOpenChange={(v) => { setOpen(v); if (v) load(); }}
-      dropdownRender={() => dropdownContent}
+      popupRender={() => dropdownContent}
       trigger={['click']}
       placement="bottomRight"
     >

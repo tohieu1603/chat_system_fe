@@ -21,7 +21,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                   AI Requirements Collector
                 </Title>
               </div>
-              <Card bordered={false} style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+              <Card variant="borderless" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
                 {children}
               </Card>
             </Col>
