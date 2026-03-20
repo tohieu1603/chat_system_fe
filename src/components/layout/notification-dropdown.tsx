@@ -8,7 +8,14 @@ import type { Notification } from '@/types';
 
 const { Text } = Typography;
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:4000/ws';
+function getWsUrl() {
+  const env = process.env.NEXT_PUBLIC_WS_URL;
+  if (env) return env;
+  if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+    return `wss://${window.location.host}/ws`;
+  }
+  return 'ws://localhost:4000/ws';
+}
 
 export default function NotificationDropdown() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -35,7 +42,11 @@ export default function NotificationDropdown() {
       const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
       if (!token || stopped) return;
 
-      ws = new WebSocket(`${WS_URL}/notifications?token=${token}`);
+      try {
+        ws = new WebSocket(`${getWsUrl()}/notifications?token=${token}`);
+      } catch {
+        return; // SecurityError on mixed content — skip silently
+      }
       wsRef.current = ws;
 
       ws.onmessage = (event) => {
