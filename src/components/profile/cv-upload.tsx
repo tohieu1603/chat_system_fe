@@ -1,7 +1,7 @@
 'use client';
 
 import { Upload, Typography, Button, App } from 'antd';
-import { InboxOutlined, FilePdfOutlined, DownloadOutlined, DeleteOutlined } from '@ant-design/icons';
+import { InboxOutlined, FilePdfOutlined, DownloadOutlined, SwapOutlined } from '@ant-design/icons';
 import type { UploadFile, UploadProps } from 'antd';
 import apiClient from '@/lib/api-client';
 import type { ApiResponse } from '@/types';
@@ -54,16 +54,16 @@ export default function CvUpload({ value, onChange }: CvUploadProps) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <FilePdfOutlined style={{ color: '#DC2626', fontSize: 24 }} />
           <div>
-            <Text strong style={{ fontSize: 13, display: 'block' }}>CV đã tải lên</Text>
-            <Text type="secondary" style={{ fontSize: 11 }}>PDF</Text>
+            <Text strong style={{ fontSize: 13, display: 'block' }}>{value.split('/').pop() || 'CV đã tải lên'}</Text>
+            <Text type="secondary" style={{ fontSize: 11 }}>PDF · Đã tải lên</Text>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Button size="small" icon={<DownloadOutlined />} href={value} target="_blank" rel="noopener">
             Xem
           </Button>
-          <Button size="small" danger icon={<DeleteOutlined />} onClick={() => onChange?.('')}>
-            Xóa
+          <Button size="small" icon={<SwapOutlined />} onClick={() => onChange?.('')}>
+            Thay thế
           </Button>
         </div>
       </div>

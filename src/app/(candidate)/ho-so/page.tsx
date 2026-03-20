@@ -45,7 +45,7 @@ export default function HoSoPage() {
     ...profile,
   };
 
-  const displayName = user?.full_name ?? user?.email ?? 'Ung vien';
+  const displayName = user?.full_name ?? user?.email ?? 'Ứng viên';
   const initials = displayName
     .split(' ')
     .filter(Boolean)
@@ -110,7 +110,7 @@ export default function HoSoPage() {
                 fontWeight: 600,
               }}
             >
-              Ho so ung vien
+              Hồ sơ ứng viên
             </Text>
             <Title
               level={3}
@@ -152,10 +152,10 @@ export default function HoSoPage() {
           </div>
           <div>
             <Title level={5} style={{ margin: 0, color: '#111827' }}>
-              Thong tin ca nhan
+              Thông tin cá nhân
             </Title>
             <Text type="secondary" style={{ fontSize: 12 }}>
-              Cap nhat ho so de tang co hoi duoc lua chon
+              Cập nhật hồ sơ để tăng cơ hội được lựa chọn
             </Text>
           </div>
         </div>

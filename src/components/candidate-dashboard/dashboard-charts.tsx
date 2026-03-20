@@ -87,7 +87,8 @@ export default function DashboardCharts({ plan, team, evaluation, notifications,
   const activities: { text: string; time: string }[] = [];
   notifications.slice(0, 8).forEach((n) => activities.push({ text: n.title, time: timeAgo(n.created_at) }));
   if (plan?.updated_at) activities.push({ text: `Cập nhật kế hoạch "${plan.title}"`, time: timeAgo(plan.updated_at) });
-  if (team?.created_at) activities.push({ text: `Tham gia đội "${team.name}"`, time: timeAgo(team.created_at) });
+  const joinedAt = team?.members?.[0]?.joined_at;
+  if (team && joinedAt) activities.push({ text: `Tham gia đội "${team.name}"`, time: timeAgo(joinedAt) });
 
   const evalCriteria = hasEval ? [
     { label: 'Hệ thống Workflow', weight: '35%', score: evaluation!.workflow_score ?? 0 },
@@ -159,7 +160,7 @@ export default function DashboardCharts({ plan, team, evaluation, notifications,
                 <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
                 <Tooltip
                   contentStyle={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
-                  formatter={(value: number) => [`${value} từ`, 'Số từ']}
+                  formatter={(value) => [`${value} từ`, 'Số từ']}
                   labelStyle={{ fontWeight: 600, color: '#111' }}
                 />
                 <Area type="monotone" dataKey="words" stroke="#3b82f6" strokeWidth={2} fill="#3b82f6" fillOpacity={0.08} dot={{ r: 3, fill: '#3b82f6', strokeWidth: 0 }} activeDot={{ r: 5, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} isAnimationActive={false} />

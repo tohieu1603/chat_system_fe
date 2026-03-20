@@ -117,6 +117,42 @@ export default function KeHoachPage() {
           />
         )}
       </Card>
+
+      {/* Tips section */}
+      <div style={{ marginTop: 24 }}>
+        <Text strong style={{ fontSize: 14, color: '#111', display: 'block', marginBottom: 12 }}>Hướng dẫn viết kế hoạch</Text>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          {[
+            { title: '14 phần cần điền', desc: 'Kế hoạch gồm 5 nhóm: Tổng quan, Thị trường, Marketing, Vận hành và Tài chính.' },
+            { title: 'Auto-save mỗi 30 giây', desc: 'Hệ thống tự lưu nháp. Bạn có thể thoát và quay lại bất cứ lúc nào.' },
+            { title: 'AI Kimi hỗ trợ', desc: 'Mỗi phần có nút "Hỏi Kimi" — AI giúp phân tích, gợi ý và viết nội dung.' },
+            { title: 'Nộp khi hoàn thành', desc: 'Điền đủ 13 phần bắt buộc → bấm "Nộp kế hoạch". Sau khi nộp không thể chỉnh sửa.' },
+          ].map((tip, i) => (
+            <div key={i} style={{ padding: 16, border: '1px solid #e5e7eb', borderRadius: 8, background: '#fafafa' }}>
+              <Text strong style={{ fontSize: 13, color: '#111', display: 'block', marginBottom: 4 }}>{tip.title}</Text>
+              <Text style={{ fontSize: 12, color: '#666', lineHeight: 1.5 }}>{tip.desc}</Text>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 4 evaluation criteria preview */}
+      <div style={{ marginTop: 20, padding: 16, border: '1px solid #e5e7eb', borderRadius: 8 }}>
+        <Text strong style={{ fontSize: 14, color: '#111', display: 'block', marginBottom: 12 }}>Tiêu chí đánh giá</Text>
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+          {[
+            { name: 'Workflow', weight: '35%' },
+            { name: 'Kinh doanh', weight: '30%' },
+            { name: 'Marketing Organic', weight: '25%' },
+            { name: 'Quảng cáo', weight: '10%' },
+          ].map((c, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 16, fontWeight: 700, color: '#5e6ad2' }}>{c.weight}</span>
+              <span style={{ fontSize: 12, color: '#666' }}>{c.name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

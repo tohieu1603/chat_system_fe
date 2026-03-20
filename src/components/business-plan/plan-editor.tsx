@@ -1,13 +1,16 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Layout, Button, Space, Typography, App, Spin, Alert } from 'antd';
-import { SaveOutlined, SendOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { Layout, Button, Space, Typography, App, Spin, Popconfirm } from 'antd';
+import { SaveOutlined, SendOutlined, ClockCircleOutlined, DeleteOutlined } from '@ant-design/icons';
+import { useRouter } from 'next/navigation';
+import apiClient from '@/lib/api-client';
 import { usePlanStore } from '@/stores/plan-store';
 import PlanNavigation, { PLAN_SECTIONS } from './plan-navigation';
 import PlanSection from './plan-section';
 import PlanStatusBadge from './plan-status-badge';
 import SubmitConfirmation from './submit-confirmation';
+import EvaluationResults from './evaluation-results';
 import type { BusinessPlan } from '@/types/talent-venture';
 
 const { Sider, Content } = Layout;
@@ -34,6 +37,7 @@ export default function PlanEditor({ planId }: PlanEditorProps) {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [savedLabel, setSavedLabel] = useState('');
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const router = useRouter();
   const { message } = App.useApp();
 
   useEffect(() => {
@@ -98,6 +102,14 @@ export default function PlanEditor({ planId }: PlanEditorProps) {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      await apiClient.delete(`/business-plans/${planId}`);
+      message.success('Đã xóa kế hoạch');
+      router.push('/ke-hoach');
+    } catch { message.error('Lỗi xóa kế hoạch'); }
+  };
+
   if (isLoading || !currentPlan) {
     return <div style={{ textAlign: 'center', paddingTop: 80 }}><Spin size="large" /></div>;
   }
@@ -106,6 +118,34 @@ export default function PlanEditor({ planId }: PlanEditorProps) {
   const currentSectionDef = PLAN_SECTIONS.find(s => s.key === activeSection);
   const hasDirty = Object.keys(dirtyFields).length > 0;
 
+  // ── READ-ONLY VIEW (submitted/approved/rejected) ──
+  if (isLocked) {
+    return (
+      <Layout style={{ background: '#fff', borderRadius: 12, border: '1px solid #E2E8F0', overflow: 'hidden', minHeight: 600 }}>
+        <Sider theme="light" width={220} style={{ background: '#FAFAFA', borderRight: '1px solid #F0F0F0' }}>
+          <PlanNavigation plan={currentPlan} activeSection={activeSection} onSelect={setActiveSection} />
+        </Sider>
+        <Layout style={{ background: '#fff' }}>
+          <div style={{ padding: '12px 20px', borderBottom: '1px solid #F0F0F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Space>
+              <Text strong style={{ fontSize: 14 }}>{currentPlan.title}</Text>
+              <PlanStatusBadge status={currentPlan.status} />
+            </Space>
+          </div>
+          <Content style={{ padding: '24px', overflowY: 'auto' }}>
+            {(currentPlan.status === 'APPROVED' || currentPlan.status === 'REJECTED' || currentPlan.status === 'REVIEWING') && (
+              <EvaluationResults planId={planId} />
+            )}
+            {currentSectionDef && (
+              <PlanSection section={currentSectionDef} plan={currentPlan} onChange={handleChange} disabled />
+            )}
+          </Content>
+        </Layout>
+      </Layout>
+    );
+  }
+
+  // ── EDITABLE VIEW (draft) ──
   return (
     <>
       <Layout style={{ background: '#fff', borderRadius: 12, border: '1px solid #E2E8F0', overflow: 'hidden', minHeight: 600 }}>
@@ -137,47 +177,36 @@ export default function PlanEditor({ planId }: PlanEditorProps) {
                   {savedLabel}
                 </Text>
               )}
-              {!isLocked && (
-                <>
-                  <Button
-                    icon={<SaveOutlined />}
-                    size="small"
-                    onClick={handleManualSave}
-                    loading={isSaving}
-                    disabled={!hasDirty}
-                  >
-                    Lưu
-                  </Button>
-                  <Button
-                    type="primary"
-                    icon={<SendOutlined />}
-                    size="small"
-                    onClick={() => setShowSubmit(true)}
-                  >
-                    Nộp kế hoạch
-                  </Button>
-                </>
-              )}
+              <Popconfirm title="Xóa kế hoạch này?" onConfirm={handleDelete}>
+                <Button size="small" danger icon={<DeleteOutlined />}>Xóa</Button>
+              </Popconfirm>
+              <Button
+                icon={<SaveOutlined />}
+                size="small"
+                onClick={handleManualSave}
+                loading={isSaving}
+                disabled={!hasDirty}
+              >
+                Lưu
+              </Button>
+              <Button
+                type="primary"
+                icon={<SendOutlined />}
+                size="small"
+                onClick={() => setShowSubmit(true)}
+              >
+                Nộp kế hoạch
+              </Button>
             </Space>
           </div>
 
           {/* Section editor */}
           <Content style={{ padding: '24px', overflowY: 'auto' }}>
-            {isLocked && currentPlan.status !== 'DRAFT' && (
-              <Alert
-                type="info"
-                message="Kế hoạch đã được nộp và không thể chỉnh sửa."
-                style={{ marginBottom: 16, borderRadius: 8 }}
-                showIcon
-              />
-            )}
-
             {currentSectionDef && (
               <PlanSection
                 section={currentSectionDef}
                 plan={currentPlan}
                 onChange={handleChange}
-                disabled={isLocked}
               />
             )}
           </Content>

@@ -41,6 +41,7 @@ const MENU_BY_ROLE: Record<string, MenuProps['items']> = {
     { key: '/admin/dot-tuyen', icon: <CalendarOutlined />, label: 'Đợt tuyển' },
     { key: '/admin/ke-hoach', icon: <SolutionOutlined />, label: 'Kế hoạch KD' },
     { key: '/admin/ung-vien', icon: <UserAddOutlined />, label: 'Ứng viên' },
+    { key: '/admin/doi-nhom', icon: <TeamOutlined />, label: 'Đội nhóm' },
   ],
   DEV: [
     { key: '/dev', icon: <DashboardOutlined />, label: 'Dashboard' },

@@ -18,6 +18,7 @@ export default function TongQuanPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
   const [aiStats, setAiStats] = useState({ totalConversations: 0, totalMessages: 0, messagesToday: 0 });
+  const [batch, setBatch] = useState<{ name: string; status: string; application_end?: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -41,6 +42,15 @@ export default function TongQuanPage() {
               messagesToday: s.messages_today ?? 0,
             });
           }
+        })
+        .catch(() => {}),
+      apiClient
+        .get('/batches')
+        .then(({ data }) => {
+          const list = data?.data ?? data;
+          const arr = Array.isArray(list) ? list : list?.items ?? [];
+          const open = arr.find((b: any) => b.status === 'OPEN');
+          if (open) setBatch({ name: open.name, status: open.status, application_end: open.application_end });
         })
         .catch(() => {}),
     ]).finally(() => setLoading(false));
@@ -88,6 +98,12 @@ export default function TongQuanPage() {
           Tổng quan
         </h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {batch && (
+            <span style={{ fontSize: 12, color: '#888', background: '#f5f5f5', padding: '2px 10px', borderRadius: 4 }}>
+              {batch.name}
+              {batch.application_end && ` · Hạn: ${new Date(batch.application_end).toLocaleDateString('vi-VN')}`}
+            </span>
+          )}
           {team && (
             <span style={{ fontSize: 13, color: '#656d76' }}>{team.name}</span>
           )}

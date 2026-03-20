@@ -40,7 +40,7 @@ export default function KeHoachPage() {
     }).catch(() => {});
   }, []);
 
-  useEffect(() => {
+  const fetchPlans = () => {
     setLoading(true);
     const params: Record<string, string> = {};
     if (batchFilter) params.batch_id = batchFilter;
@@ -51,7 +51,9 @@ export default function KeHoachPage() {
     }).catch(() => {
       message.error('Tải dữ liệu thất bại');
     }).finally(() => setLoading(false));
-  }, [batchFilter, statusFilter]);
+  };
+
+  useEffect(() => { fetchPlans(); }, [batchFilter, statusFilter]);
 
   const filtered = plans.filter((p) =>
     !search || p.title.toLowerCase().includes(search.toLowerCase()),
@@ -99,7 +101,7 @@ export default function KeHoachPage() {
       </Card>
 
       <Card>
-        <PlanListTable data={filtered} loading={loading} />
+        <PlanListTable data={filtered} loading={loading} onRefresh={fetchPlans} />
       </Card>
     </AppLayout>
   );

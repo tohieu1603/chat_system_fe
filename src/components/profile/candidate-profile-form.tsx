@@ -79,10 +79,10 @@ export default function CandidateProfileForm({
     };
     try {
       await apiClient.patch<ApiResponse<CandidateProfile>>('/users/profile/candidate', payload);
-      message.success('Da luu ho so thanh cong!');
+      message.success('Đã lưu hồ sơ thành công!');
       onSaved?.();
     } catch (err: any) {
-      message.error(err?.response?.data?.message ?? 'Loi luu ho so');
+      message.error(err?.response?.data?.message ?? 'Lỗi lưu hồ sơ');
     }
   };
 
@@ -100,8 +100,8 @@ export default function CandidateProfileForm({
       {/* Section 1: Personal info */}
       <SectionHeader
         icon={<UserOutlined />}
-        title="Thong tin ca nhan"
-        desc="Ho ten va thong tin lien he cua ban"
+        title="Thông tin cá nhân"
+        desc="Họ tên và thông tin liên hệ của bạn"
         color="#4F46E5"
         bg="#EEF2FF"
       />
@@ -110,8 +110,8 @@ export default function CandidateProfileForm({
         <Col xs={24} sm={12}>
           <Form.Item
             name="full_name"
-            label={<Text style={{ fontSize: 13, fontWeight: 500 }}>Ho va ten</Text>}
-            rules={[{ required: true, message: 'Vui long nhap ho ten' }]}
+            label={<Text style={{ fontSize: 13, fontWeight: 500 }}>Họ và tên</Text>}
+            rules={[{ required: true, message: 'Vui lòng nhập họ tên' }]}
           >
             <Input
               placeholder="Nguyen Van A"
@@ -123,7 +123,7 @@ export default function CandidateProfileForm({
         <Col xs={24} sm={12}>
           <Form.Item
             name="phone"
-            label={<Text style={{ fontSize: 13, fontWeight: 500 }}>So dien thoai</Text>}
+            label={<Text style={{ fontSize: 13, fontWeight: 500 }}>Số điện thoại</Text>}
           >
             <Input
               placeholder="0912345678"
@@ -138,20 +138,20 @@ export default function CandidateProfileForm({
         <Col xs={24} sm={12}>
           <Form.Item
             name="date_of_birth"
-            label={<Text style={{ fontSize: 13, fontWeight: 500 }}>Ngay sinh</Text>}
+            label={<Text style={{ fontSize: 13, fontWeight: 500 }}>Ngày sinh</Text>}
           >
             <DatePicker
               style={{ width: '100%', borderRadius: 10 }}
               size="large"
               format="DD/MM/YYYY"
-              placeholder="Chon ngay sinh"
+              placeholder="Chọn ngày sinh"
             />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12}>
           <Form.Item
             name="address"
-            label={<Text style={{ fontSize: 13, fontWeight: 500 }}>Dia chi</Text>}
+            label={<Text style={{ fontSize: 13, fontWeight: 500 }}>Địa chỉ</Text>}
           >
             <Input placeholder="TP.HCM" size="large" style={{ borderRadius: 10 }} />
           </Form.Item>
@@ -163,7 +163,7 @@ export default function CandidateProfileForm({
       {/* Section 2: Education */}
       <SectionHeader
         icon={<BookOutlined />}
-        title="Hoc van"
+        title="Học vấn"
         desc="Truong, khoa va nien khoa cua ban"
         color="#059669"
         bg="#ECFDF5"
@@ -174,7 +174,7 @@ export default function CandidateProfileForm({
         label={<Text style={{ fontSize: 13, fontWeight: 500 }}>Hoc van</Text>}
       >
         <Input.TextArea
-          placeholder="VD: Dai hoc Kinh te TP.HCM, Khoa Quan tri kinh doanh, 2022-2026"
+          placeholder="VD: Đại học Kinh tế TP.HCM, Khoa Quản trị kinh doanh, 2022-2026"
           rows={2}
           maxLength={500}
           showCount
@@ -184,10 +184,10 @@ export default function CandidateProfileForm({
 
       <Form.Item
         name="experience"
-        label={<Text style={{ fontSize: 13, fontWeight: 500 }}>Kinh nghiem</Text>}
+        label={<Text style={{ fontSize: 13, fontWeight: 500 }}>Kinh nghiệm</Text>}
       >
         <Input.TextArea
-          placeholder="Mo ta cac kinh nghiem lam viec, thuc tap, du an da tham gia..."
+          placeholder="Mô tả các kinh nghiệm làm việc, thực tập, dự án đã tham gia..."
           rows={3}
           maxLength={1000}
           showCount
@@ -200,8 +200,8 @@ export default function CandidateProfileForm({
       {/* Section 3: Skills */}
       <SectionHeader
         icon={<ToolOutlined />}
-        title="Ky nang"
-        desc="Liet ke cac ky nang chuyen mon va mem cua ban"
+        title="Kỹ năng"
+        desc="Liệt kê các kỹ năng chuyên môn và mềm của bạn"
         color="#7C3AED"
         bg="#F5F3FF"
       />
@@ -211,7 +211,7 @@ export default function CandidateProfileForm({
         label={<Text style={{ fontSize: 13, fontWeight: 500 }}>Ky nang</Text>}
       >
         <Input.TextArea
-          placeholder="VD: Marketing, Excel, Thiet ke, Lap trinh, Quan ly..."
+          placeholder="VD: Marketing, Excel, Thiết kế, Lập trình, Quản lý..."
           rows={2}
           maxLength={500}
           showCount
@@ -233,7 +233,7 @@ export default function CandidateProfileForm({
       <Form.Item
         name="motivation"
         label={<Text style={{ fontSize: 13, fontWeight: 500 }}>Dong luc tham gia chuong trinh</Text>}
-        rules={[{ required: true, message: 'Vui long chia se dong luc cua ban' }]}
+        rules={[{ required: true, message: 'Vui lòng chia sẻ động lực của bạn' }]}
       >
         <Input.TextArea
           placeholder="Tai sao ban muon tham gia Talent Venture? Ban ky vong gi tu chuong trinh nay?"
