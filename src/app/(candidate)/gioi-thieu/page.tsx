@@ -61,7 +61,8 @@ function useRevealOnScroll() {
       { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
     );
 
-    const children = el.querySelectorAll('[data-reveal]');
+    const revealClass = styles.reveal;
+    const children = el.querySelectorAll(`.${revealClass}`);
     children.forEach((child) => observer.observe(child));
 
     return () => observer.disconnect();
@@ -84,7 +85,7 @@ export default function GioiThieuPage() {
         </div>
         <div className={styles.heroOverlay} />
         <div className={styles.heroContent}>
-          <div className={styles.heroInner} data-reveal>
+          <div className={`${styles.heroInner} ${styles.reveal}`}>
             <div className={styles.heroLine} />
             <p className={styles.heroEyebrow}>Talent Venture 2025</p>
             <h1 className={styles.heroTitle}>
@@ -119,7 +120,7 @@ export default function GioiThieuPage() {
 
       {/* ─── EDITORIAL INTRO ─── */}
       <section className={styles.editorial}>
-        <div className={styles.editorialInner} data-reveal>
+        <div className={`${styles.editorialInner} ${styles.reveal}`}>
           <p className={styles.editorialEyebrow}>Giới thiệu</p>
           <h2 className={styles.editorialTitle}>
             Một chương trình.<br />Mọi thứ bạn cần.
@@ -134,13 +135,13 @@ export default function GioiThieuPage() {
 
       {/* ─── BENEFITS ─── */}
       <section className={styles.benefits}>
-        <div className={styles.benefitsHeader} data-reveal>
+        <div className={`${styles.benefitsHeader} ${styles.reveal}`}>
           <p className={styles.sectionEyebrow}>Quyền lợi</p>
           <h2 className={styles.sectionTitle}>Bạn nhận được gì</h2>
         </div>
         <div className={styles.benefitsGrid}>
           {BENEFITS.map((b, i) => (
-            <div key={i} className={styles.benefitItem} data-reveal>
+            <div key={i} className={`${styles.benefitItem} ${styles.reveal}`}>
               <div className={styles.benefitNumWrap}>
                 <span className={styles.benefitNum}>{b.num}</span>
               </div>
@@ -159,7 +160,7 @@ export default function GioiThieuPage() {
           <img src={BREAK_IMG} alt="" className={styles.imageBreakImg} />
         </div>
         <div className={styles.imageBreakOverlay} />
-        <div className={styles.imageBreakContent} data-reveal>
+        <div className={`${styles.imageBreakContent} ${styles.reveal}`}>
           <p className={styles.imageBreakQuote}>
             &ldquo;Hành trình ngàn dặm bắt đầu từ một bước chân.&rdquo;
           </p>
@@ -168,13 +169,13 @@ export default function GioiThieuPage() {
 
       {/* ─── PROCESS ─── */}
       <section className={styles.process}>
-        <div className={styles.processHeader} data-reveal>
+        <div className={`${styles.processHeader} ${styles.reveal}`}>
           <p className={styles.sectionEyebrow}>Quy trình</p>
           <h2 className={styles.sectionTitle}>6 bước từ ý tưởng đến dự án</h2>
         </div>
         <div className={styles.processGrid}>
           {STEPS.map((step, i) => (
-            <div key={i} className={styles.processItem} data-reveal>
+            <div key={i} className={`${styles.processItem} ${styles.reveal}`}>
               <span className={styles.processNum}>{String(i + 1).padStart(2, '0')}</span>
               <div className={styles.processDivider} />
               <h3 className={styles.processTitle}>{step.title}</h3>
@@ -187,14 +188,14 @@ export default function GioiThieuPage() {
       {/* ─── DUTIES ─── */}
       <section className={styles.duties}>
         <div className={styles.dutiesInner}>
-          <div className={styles.dutiesLeft} data-reveal>
+          <div className={`${styles.dutiesLeft} ${styles.reveal}`}>
             <p className={styles.sectionEyebrow}>Trách nhiệm</p>
             <h2 className={styles.sectionTitle}>Cam kết<br />của bạn</h2>
             <div className={styles.dutiesAccent} />
           </div>
           <div className={styles.dutiesRight}>
             {DUTIES.map((d, i) => (
-              <div key={i} className={styles.dutyRow} data-reveal>
+              <div key={i} className={`${styles.dutyRow} ${styles.reveal}`}>
                 <span className={styles.dutyNum}>{String(i + 1).padStart(2, '0')}</span>
                 <p className={styles.dutyText}>{d}</p>
               </div>
@@ -205,13 +206,13 @@ export default function GioiThieuPage() {
 
       {/* ─── CRITERIA ─── */}
       <section className={styles.criteria}>
-        <div className={styles.criteriaHeader} data-reveal>
+        <div className={`${styles.criteriaHeader} ${styles.reveal}`}>
           <p className={styles.sectionEyebrow}>Đánh giá</p>
           <h2 className={styles.sectionTitle}>Tiêu chí chấm điểm</h2>
         </div>
         <div className={styles.criteriaList}>
           {CRITERIA.map((c, i) => (
-            <div key={i} className={styles.criteriaRow} data-reveal>
+            <div key={i} className={`${styles.criteriaRow} ${styles.reveal}`}>
               <span className={styles.criteriaIndex}>{String(i + 1).padStart(2, '0')}</span>
               <span className={styles.criteriaName}>{c.name}</span>
               <span className={styles.criteriaLine} />
@@ -223,7 +224,7 @@ export default function GioiThieuPage() {
 
       {/* ─── CTA ─── */}
       <section className={styles.cta}>
-        <div className={styles.ctaInner} data-reveal>
+        <div className={`${styles.ctaInner} ${styles.reveal}`}>
           <div className={styles.ctaDecor}>
             <div className={styles.ctaDecorLine} />
             <div className={styles.ctaDecorDiamond} />

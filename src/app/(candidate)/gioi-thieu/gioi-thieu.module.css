@@ -5,7 +5,7 @@
    ═══════════════════════════════════════════ */
 
 /* ─── REVEAL ANIMATIONS ─── */
-[data-reveal] {
+.reveal {
   opacity: 0;
   transform: translateY(32px);
   transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
@@ -16,13 +16,6 @@
   opacity: 1 !important;
   transform: translateY(0) !important;
 }
-
-/* stagger children inside revealed containers */
-.revealed[data-reveal] .benefitItem:nth-child(2) { transition-delay: 0.08s; }
-.revealed[data-reveal] .benefitItem:nth-child(3) { transition-delay: 0.16s; }
-.revealed[data-reveal] .benefitItem:nth-child(4) { transition-delay: 0.24s; }
-.revealed[data-reveal] .benefitItem:nth-child(5) { transition-delay: 0.32s; }
-.revealed[data-reveal] .benefitItem:nth-child(6) { transition-delay: 0.40s; }
 
 .page {
   margin: -24px;
