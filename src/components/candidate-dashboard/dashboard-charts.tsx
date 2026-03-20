@@ -4,6 +4,7 @@ import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer,
   AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
 } from 'recharts';
+import { useRouter } from 'next/navigation';
 import { Tag } from 'antd';
 import type { BusinessPlan, Evaluation, Team } from '@/types/talent-venture';
 import type { Notification } from '@/types';
@@ -57,7 +58,7 @@ export interface DashboardChartsProps {
   aiStats?: { totalConversations: number; totalMessages: number; messagesToday: number };
 }
 
-const box: React.CSSProperties = { border: '1px solid #e5e7eb', borderRadius: 6, padding: 20, background: '#fff' };
+const box: React.CSSProperties = { border: '1px solid #e5e7eb', borderRadius: 6, padding: 20, background: '#fff', cursor: 'pointer', transition: 'box-shadow 0.2s' };
 const h3Style: React.CSSProperties = { fontSize: 14, fontWeight: 600, color: '#111', margin: '0 0 16px' };
 
 function BarTip({ active, payload, label }: { active?: boolean; payload?: { value: number }[]; label?: string }) {
@@ -70,6 +71,7 @@ function BarTip({ active, payload, label }: { active?: boolean; payload?: { valu
 }
 
 export default function DashboardCharts({ plan, team, evaluation, notifications, aiStats }: DashboardChartsProps) {
+  const router = useRouter();
   const radarData = [
     { subject: 'Workflow', score: evaluation?.workflow_score ?? 0 },
     { subject: 'Kinh doanh', score: evaluation?.business_score ?? 0 },
@@ -104,7 +106,7 @@ export default function DashboardCharts({ plan, team, evaluation, notifications,
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* Row 1: Radar + Bar */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-        <div style={box}>
+        <div style={box} onClick={() => router.push(plan?.id ? `/ke-hoach/${plan.id}` : '/ke-hoach')} onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'; }} onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; }}>
           <h3 style={h3Style}>Điểm đánh giá theo tiêu chí</h3>
           {!hasEval ? (
             <div style={{ height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999', fontSize: 13 }}>Chưa có đánh giá</div>
@@ -145,7 +147,7 @@ export default function DashboardCharts({ plan, team, evaluation, notifications,
           )}
         </div>
 
-        <div style={box}>
+        <div style={box} onClick={() => router.push(plan?.id ? `/ke-hoach/${plan.id}` : '/ke-hoach')} onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'; }} onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h3 style={{ ...h3Style, margin: 0 }}>Nội dung kế hoạch</h3>
             {plan && <span style={{ fontSize: 12, color: '#888' }}>{filledCount}/14 phần · {totalWords.toLocaleString()} từ</span>}
@@ -173,7 +175,7 @@ export default function DashboardCharts({ plan, team, evaluation, notifications,
       {/* Row 2: Team info + AI Stats + Activity */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
         {/* Team */}
-        <div style={box}>
+        <div style={box} onClick={() => router.push('/doi-nhom')} onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'; }} onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; }}>
           <h3 style={h3Style}>Đội nhóm</h3>
           {!team ? (
             <span style={{ fontSize: 13, color: '#999' }}>Chưa có đội</span>
@@ -199,7 +201,7 @@ export default function DashboardCharts({ plan, team, evaluation, notifications,
         </div>
 
         {/* AI Stats */}
-        <div style={box}>
+        <div style={box} onClick={() => router.push('/tro-ly-ai')} onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'; }} onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; }}>
           <h3 style={h3Style}>Trợ lý AI Kimi</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>

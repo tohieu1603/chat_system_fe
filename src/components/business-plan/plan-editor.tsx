@@ -11,6 +11,7 @@ import PlanSection from './plan-section';
 import PlanStatusBadge from './plan-status-badge';
 import SubmitConfirmation from './submit-confirmation';
 import EvaluationResults from './evaluation-results';
+import AskKimiDrawer from '../ai-kimi/ask-kimi-drawer';
 import type { BusinessPlan } from '@/types/talent-venture';
 
 const { Sider, Content } = Layout;
@@ -36,6 +37,7 @@ export default function PlanEditor({ planId }: PlanEditorProps) {
   const [showSubmit, setShowSubmit] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [savedLabel, setSavedLabel] = useState('');
+  const [kimiOpen, setKimiOpen] = useState(false);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const router = useRouter();
   const { message } = App.useApp();
@@ -207,11 +209,20 @@ export default function PlanEditor({ planId }: PlanEditorProps) {
                 section={currentSectionDef}
                 plan={currentPlan}
                 onChange={handleChange}
+                onAskAI={() => setKimiOpen(true)}
               />
             )}
           </Content>
         </Layout>
       </Layout>
+
+      <AskKimiDrawer
+        open={kimiOpen}
+        onClose={() => setKimiOpen(false)}
+        planId={planId}
+        sectionName={currentSectionDef?.label ?? ''}
+        currentContent={typeof currentPlan[activeSection] === 'string' ? (currentPlan[activeSection] as string) : ''}
+      />
 
       <SubmitConfirmation
         plan={currentPlan}

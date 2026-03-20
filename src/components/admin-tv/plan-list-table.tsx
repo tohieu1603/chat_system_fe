@@ -46,8 +46,8 @@ export default function PlanListTable({ data, loading, onRefresh }: PlanListTabl
       key: 'title',
       render: (v) => <strong>{v}</strong>,
     },
-    { title: 'Đội nhóm', dataIndex: 'team_name', key: 'team_name', render: (v) => v ?? '—' },
-    { title: 'Đợt tuyển', dataIndex: 'batch_name', key: 'batch_name', render: (v) => v ?? '—' },
+    { title: 'Đội nhóm', dataIndex: ['team', 'name'], key: 'team_name', render: (v: string) => v ?? '—' },
+    { title: 'Đợt tuyển', dataIndex: ['batch', 'name'], key: 'batch_name', render: (v: string) => v ?? '—' },
     {
       title: 'Trạng thái',
       dataIndex: 'status',

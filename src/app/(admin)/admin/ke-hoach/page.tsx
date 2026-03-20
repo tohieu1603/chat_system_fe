@@ -40,17 +40,34 @@ export default function KeHoachPage() {
     }).catch(() => {});
   }, []);
 
-  const fetchPlans = () => {
+  const fetchPlans = async () => {
     setLoading(true);
-    const params: Record<string, string> = {};
-    if (batchFilter) params.batch_id = batchFilter;
-    if (statusFilter) params.status = statusFilter;
-    apiClient.get('/business-plans', { params }).then((res) => {
+    try {
+      const params: Record<string, string> = {};
+      if (batchFilter) params.batch_id = batchFilter;
+      if (statusFilter) params.status = statusFilter;
+      const res = await apiClient.get('/business-plans', { params });
       const d = res.data?.data ?? res.data;
-      setPlans(Array.isArray(d) ? d : d?.items ?? []);
-    }).catch(() => {
+      const planList: PlanRow[] = Array.isArray(d) ? d : d?.items ?? [];
+
+      // Fetch evaluations for all plans in parallel
+      const withEvals = await Promise.all(
+        planList.map(async (p) => {
+          try {
+            const evalRes = await apiClient.get(`/business-plans/${p.id}/evaluation`);
+            const ev = evalRes.data?.data;
+            return { ...p, weighted_total: ev?.weighted_total ?? undefined };
+          } catch {
+            return p;
+          }
+        }),
+      );
+      setPlans(withEvals);
+    } catch {
       message.error('Tải dữ liệu thất bại');
-    }).finally(() => setLoading(false));
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { fetchPlans(); }, [batchFilter, statusFilter]);

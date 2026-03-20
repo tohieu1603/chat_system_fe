@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 import type { BusinessPlan, Evaluation, Team } from '@/types/talent-venture';
 
@@ -32,6 +33,7 @@ interface StatCardsProps {
 }
 
 export default function StatCards({ plan, evaluation, aiStats, team }: StatCardsProps) {
+  const router = useRouter();
   const filled = plan ? PLAN_KEYS.filter((k) => isFilled(plan[k])).length : 0;
   const percent = plan ? Math.round((filled / 14) * 100) : 0;
   const evalScore = evaluation?.weighted_total != null ? Number(evaluation.weighted_total).toFixed(1) : null;
@@ -62,6 +64,7 @@ export default function StatCards({ plan, evaluation, aiStats, team }: StatCards
     descIcon: string;
     color: string;
     sparkline: { x: number; v: number }[];
+    href: string;
   }[] = [
     {
       label: 'Tiến độ kế hoạch',
@@ -70,6 +73,7 @@ export default function StatCards({ plan, evaluation, aiStats, team }: StatCards
       descIcon: percent === 100 ? '✅' : '📝',
       color: '#10b981',
       sparkline: planSparkline,
+      href: '/ke-hoach',
     },
     {
       label: 'Điểm đánh giá',
@@ -78,6 +82,7 @@ export default function StatCards({ plan, evaluation, aiStats, team }: StatCards
       descIcon: evaluation?.recommendation === 'APPROVE' ? '🎯' : '⏳',
       color: '#3b82f6',
       sparkline: evalSparkline,
+      href: plan?.id ? `/ke-hoach/${plan.id}` : '/ke-hoach',
     },
     {
       label: 'Thành viên',
@@ -86,6 +91,7 @@ export default function StatCards({ plan, evaluation, aiStats, team }: StatCards
       descIcon: team ? '👥' : '➕',
       color: '#f59e0b',
       sparkline: teamSparkline,
+      href: '/doi-nhom',
     },
     {
       label: 'Tin nhắn AI',
@@ -94,6 +100,7 @@ export default function StatCards({ plan, evaluation, aiStats, team }: StatCards
       descIcon: aiTotal > 0 ? '💬' : '🤖',
       color: '#22c55e',
       sparkline: aiSparkline,
+      href: '/tro-ly-ai',
     },
   ];
 
@@ -102,12 +109,17 @@ export default function StatCards({ plan, evaluation, aiStats, team }: StatCards
       {cards.map((c) => (
         <div
           key={c.label}
+          onClick={() => router.push(c.href)}
           style={{
             background: '#fff',
             borderRadius: 12,
             boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
             overflow: 'hidden',
+            cursor: 'pointer',
+            transition: 'box-shadow 0.2s',
           }}
+          onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px 0 rgb(0 0 0 / 0.15)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)'; }}
         >
           {/* Text content */}
           <div style={{ padding: '20px 24px 12px' }}>
