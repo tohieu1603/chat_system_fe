@@ -25,28 +25,42 @@ export default function NotificationDropdown() {
   // Initial load
   useEffect(() => { load(); }, [load]);
 
-  // WebSocket realtime
+  // WebSocket realtime with auto-reconnect
   useEffect(() => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-    if (!token) return;
+    let ws: WebSocket | null = null;
+    let reconnectTimer: ReturnType<typeof setTimeout>;
+    let stopped = false;
 
-    const wsUrl = `${WS_URL}/notifications?token=${token}`;
-    const ws = new WebSocket(wsUrl);
-    wsRef.current = ws;
+    const connect = () => {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+      if (!token || stopped) return;
 
-    ws.onmessage = (event) => {
-      try {
-        const msg = JSON.parse(event.data);
-        if (msg.event === 'notification' && msg.data) {
-          setNotifications((prev) => [msg.data, ...prev].slice(0, 20));
-        }
-      } catch {}
+      ws = new WebSocket(`${WS_URL}/notifications?token=${token}`);
+      wsRef.current = ws;
+
+      ws.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.event === 'notification' && msg.data) {
+            setNotifications((prev) => [msg.data, ...prev].slice(0, 20));
+          }
+        } catch {}
+      };
+
+      ws.onclose = () => {
+        wsRef.current = null;
+        if (!stopped) reconnectTimer = setTimeout(connect, 5000);
+      };
+
+      ws.onerror = () => ws?.close();
     };
 
-    ws.onclose = () => { wsRef.current = null; };
+    connect();
 
     return () => {
-      ws.close();
+      stopped = true;
+      clearTimeout(reconnectTimer);
+      ws?.close();
       wsRef.current = null;
     };
   }, []);

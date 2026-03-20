@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Layout, Button, Space, Typography, App, Spin, Popconfirm } from 'antd';
+import { Layout, Button, Space, Typography, App, Spin, Popconfirm, Tabs } from 'antd';
 import { SaveOutlined, SendOutlined, ClockCircleOutlined, DeleteOutlined } from '@ant-design/icons';
+import ReactMarkdown from 'react-markdown';
 import { useRouter } from 'next/navigation';
 import apiClient from '@/lib/api-client';
 import { usePlanStore } from '@/stores/plan-store';
@@ -12,6 +13,7 @@ import PlanStatusBadge from './plan-status-badge';
 import SubmitConfirmation from './submit-confirmation';
 import EvaluationResults from './evaluation-results';
 import AskKimiDrawer from '../ai-kimi/ask-kimi-drawer';
+import PlanViewer from '../admin-tv/plan-viewer';
 import type { BusinessPlan } from '@/types/talent-venture';
 
 const { Sider, Content } = Layout;
@@ -38,12 +40,20 @@ export default function PlanEditor({ planId }: PlanEditorProps) {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [savedLabel, setSavedLabel] = useState('');
   const [kimiOpen, setKimiOpen] = useState(false);
+  const [reportDoc, setReportDoc] = useState<string | null>(null);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const router = useRouter();
   const { message } = App.useApp();
 
   useEffect(() => {
     fetchPlan(planId);
+    // Fetch report if plan is approved
+    apiClient.get('/projects', { params: { limit: 100 } }).then(({ data }) => {
+      const raw = data?.data ?? data;
+      const list = Array.isArray(raw) ? raw : raw?.items ?? [];
+      const match = list.find((p: any) => p.collection_progress?.plan_id === planId && p.requirement_doc_url);
+      if (match) setReportDoc(match.requirement_doc_url);
+    }).catch(() => {});
     return () => {
       if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     };
@@ -122,28 +132,58 @@ export default function PlanEditor({ planId }: PlanEditorProps) {
 
   // ── READ-ONLY VIEW (submitted/approved/rejected) ──
   if (isLocked) {
+    const tabItems = [
+      {
+        key: 'plan',
+        label: 'Nội dung kế hoạch',
+        children: <PlanViewer plan={currentPlan} />,
+      },
+      ...(reportDoc ? [
+        {
+          key: 'report',
+          label: 'Báo cáo AI',
+          children: (
+            <div className="kimi-md" style={{ lineHeight: 1.8, fontSize: 14 }}>
+              <ReactMarkdown>{reportDoc}</ReactMarkdown>
+            </div>
+          ),
+        },
+        {
+          key: 'markdown',
+          label: 'Markdown',
+          children: (
+            <pre style={{ background: '#f8f9fa', border: '1px solid #e8e8e8', borderRadius: 8, padding: 16, whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: 13, lineHeight: 1.6, maxHeight: 'calc(100vh - 300px)', overflowY: 'auto' as const }}>
+              {reportDoc}
+            </pre>
+          ),
+        },
+      ] : []),
+    ];
+
     return (
-      <Layout style={{ background: '#fff', borderRadius: 12, border: '1px solid #E2E8F0', overflow: 'hidden', minHeight: 600 }}>
-        <Sider theme="light" width={220} style={{ background: '#FAFAFA', borderRight: '1px solid #F0F0F0' }}>
-          <PlanNavigation plan={currentPlan} activeSection={activeSection} onSelect={setActiveSection} />
-        </Sider>
-        <Layout style={{ background: '#fff' }}>
-          <div style={{ padding: '12px 20px', borderBottom: '1px solid #F0F0F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Space>
-              <Text strong style={{ fontSize: 14 }}>{currentPlan.title}</Text>
-              <PlanStatusBadge status={currentPlan.status} />
-            </Space>
+      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #E2E8F0', overflow: 'hidden' }}>
+        <div style={{ padding: '16px 24px', borderBottom: '1px solid #F0F0F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Space>
+            <Text strong style={{ fontSize: 16 }}>{currentPlan.title}</Text>
+            <PlanStatusBadge status={currentPlan.status} />
+          </Space>
+        </div>
+
+        <div style={{ display: 'flex', gap: 0 }}>
+          {/* Main content */}
+          <div style={{ flex: 1, padding: '0 24px 24px', maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
+            <Tabs defaultActiveKey="plan" items={tabItems} />
           </div>
-          <Content style={{ padding: '24px', overflowY: 'auto' }}>
-            {(currentPlan.status === 'APPROVED' || currentPlan.status === 'REJECTED' || currentPlan.status === 'REVIEWING') && (
+
+          {/* Evaluation sidebar */}
+          {(currentPlan.status === 'APPROVED' || currentPlan.status === 'REJECTED' || currentPlan.status === 'REVIEWING') && (
+            <div style={{ width: 320, borderLeft: '1px solid #F0F0F0', padding: '20px', maxHeight: 'calc(100vh - 200px)', overflowY: 'auto', flexShrink: 0 }}>
+              <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 16 }}>Kết quả đánh giá</Text>
               <EvaluationResults planId={planId} />
-            )}
-            {currentSectionDef && (
-              <PlanSection section={currentSectionDef} plan={currentPlan} onChange={handleChange} disabled />
-            )}
-          </Content>
-        </Layout>
-      </Layout>
+            </div>
+          )}
+        </div>
+      </div>
     );
   }
 

@@ -1,85 +1,43 @@
 'use client';
 
-import { Form, Input, Button, DatePicker, Row, Col, Typography, App, Divider } from 'antd';
-import {
-  SaveOutlined,
-  UserOutlined,
-  BookOutlined,
-  ToolOutlined,
-  FireOutlined,
-  FilePdfOutlined,
-} from '@ant-design/icons';
+import { Form, Input, Button, DatePicker, Row, Col, App } from 'antd';
+import { SaveOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import apiClient from '@/lib/api-client';
 import type { ApiResponse } from '@/types';
 import type { CandidateProfile } from '@/types/talent-venture';
 import CvUpload from './cv-upload';
 
-const { Title, Text } = Typography;
-
 interface CandidateProfileFormProps {
   initialValues?: Partial<CandidateProfile>;
   onSaved?: () => void;
 }
 
-interface SectionHeaderProps {
-  icon: React.ReactNode;
-  title: string;
-  desc?: string;
-  color: string;
-  bg: string;
-}
+const label = (text: string) => <span style={{ fontSize: 13, fontWeight: 500, color: '#333' }}>{text}</span>;
 
-function SectionHeader({ icon, title, desc, color, bg }: SectionHeaderProps) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ marginBottom: 20 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-        <div
-          style={{
-            width: 30,
-            height: 30,
-            borderRadius: 8,
-            background: bg,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color,
-            fontSize: 14,
-            flexShrink: 0,
-          }}
-        >
-          {icon}
-        </div>
-        <Text strong style={{ fontSize: 14, color: '#111827' }}>
-          {title}
-        </Text>
-      </div>
-      {desc && (
-        <Text type="secondary" style={{ fontSize: 12, marginLeft: 40, display: 'block' }}>
-          {desc}
-        </Text>
-      )}
+    <div style={{ marginBottom: 28 }}>
+      <h3 style={{ fontSize: 13, fontWeight: 600, color: '#111', margin: '0 0 14px', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+        {title}
+      </h3>
+      {children}
     </div>
   );
 }
 
-export default function CandidateProfileForm({
-  initialValues,
-  onSaved,
-}: CandidateProfileFormProps) {
+export default function CandidateProfileForm({ initialValues, onSaved }: CandidateProfileFormProps) {
   const [form] = Form.useForm();
   const { message } = App.useApp();
 
   const handleSubmit = async (values: any) => {
     const payload = {
       ...values,
-      date_of_birth: values.date_of_birth
-        ? values.date_of_birth.format('YYYY-MM-DD')
-        : undefined,
+      date_of_birth: values.date_of_birth ? values.date_of_birth.format('YYYY-MM-DD') : undefined,
     };
     try {
       await apiClient.patch<ApiResponse<CandidateProfile>>('/users/profile/candidate', payload);
-      message.success('Đã lưu hồ sơ thành công!');
+      message.success('Đã lưu hồ sơ!');
       onSaved?.();
     } catch (err: any) {
       message.error(err?.response?.data?.message ?? 'Lỗi lưu hồ sơ');
@@ -87,199 +45,79 @@ export default function CandidateProfileForm({
   };
 
   const defaults = initialValues
-    ? {
-        ...initialValues,
-        date_of_birth: initialValues.date_of_birth
-          ? dayjs(initialValues.date_of_birth)
-          : undefined,
-      }
+    ? { ...initialValues, date_of_birth: initialValues.date_of_birth ? dayjs(initialValues.date_of_birth) : undefined }
     : undefined;
 
   return (
     <Form form={form} layout="vertical" initialValues={defaults} onFinish={handleSubmit} requiredMark={false}>
-      {/* Section 1: Personal info */}
-      <SectionHeader
-        icon={<UserOutlined />}
-        title="Thông tin cá nhân"
-        desc="Họ tên và thông tin liên hệ của bạn"
-        color="#4F46E5"
-        bg="#EEF2FF"
-      />
+      <Section title="Thông tin cá nhân">
+        <Row gutter={16}>
+          <Col xs={24} sm={12}>
+            <Form.Item name="full_name" label={label('Họ và tên')} rules={[{ required: true, message: 'Vui lòng nhập họ tên' }]}>
+              <Input placeholder="Nguyễn Văn A" />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={12}>
+            <Form.Item name="phone" label={label('Số điện thoại')}>
+              <Input placeholder="0912345678" />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={16}>
+          <Col xs={24} sm={12}>
+            <Form.Item name="date_of_birth" label={label('Ngày sinh')}>
+              <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" placeholder="Chọn ngày sinh" />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={12}>
+            <Form.Item name="address" label={label('Địa chỉ')}>
+              <Input placeholder="TP.HCM" />
+            </Form.Item>
+          </Col>
+        </Row>
+      </Section>
 
-      <Row gutter={[20, 0]}>
-        <Col xs={24} sm={12}>
-          <Form.Item
-            name="full_name"
-            label={<Text style={{ fontSize: 13, fontWeight: 500 }}>Họ và tên</Text>}
-            rules={[{ required: true, message: 'Vui lòng nhập họ tên' }]}
-          >
-            <Input
-              placeholder="Nguyen Van A"
-              size="large"
-              style={{ borderRadius: 10 }}
-            />
-          </Form.Item>
-        </Col>
-        <Col xs={24} sm={12}>
-          <Form.Item
-            name="phone"
-            label={<Text style={{ fontSize: 13, fontWeight: 500 }}>Số điện thoại</Text>}
-          >
-            <Input
-              placeholder="0912345678"
-              size="large"
-              style={{ borderRadius: 10 }}
-            />
-          </Form.Item>
-        </Col>
-      </Row>
+      <Section title="Học vấn & Kinh nghiệm">
+        <Form.Item name="education" label={label('Học vấn')}>
+          <Input.TextArea placeholder="VD: ĐH Kinh tế TP.HCM, Quản trị kinh doanh, 2022-2026" rows={2} maxLength={500} showCount />
+        </Form.Item>
+        <Form.Item name="experience" label={label('Kinh nghiệm')}>
+          <Input.TextArea placeholder="Mô tả kinh nghiệm làm việc, thực tập, dự án..." rows={3} maxLength={1000} showCount />
+        </Form.Item>
+      </Section>
 
-      <Row gutter={[20, 0]}>
-        <Col xs={24} sm={12}>
-          <Form.Item
-            name="date_of_birth"
-            label={<Text style={{ fontSize: 13, fontWeight: 500 }}>Ngày sinh</Text>}
-          >
-            <DatePicker
-              style={{ width: '100%', borderRadius: 10 }}
-              size="large"
-              format="DD/MM/YYYY"
-              placeholder="Chọn ngày sinh"
-            />
-          </Form.Item>
-        </Col>
-        <Col xs={24} sm={12}>
-          <Form.Item
-            name="address"
-            label={<Text style={{ fontSize: 13, fontWeight: 500 }}>Địa chỉ</Text>}
-          >
-            <Input placeholder="TP.HCM" size="large" style={{ borderRadius: 10 }} />
-          </Form.Item>
-        </Col>
-      </Row>
+      <Section title="Kỹ năng">
+        <Form.Item name="skills" label={label('Kỹ năng chuyên môn & mềm')}>
+          <Input.TextArea placeholder="VD: Marketing, Excel, Thiết kế, Lập trình, Quản lý..." rows={2} maxLength={500} showCount />
+        </Form.Item>
+      </Section>
 
-      <Divider style={{ margin: '8px 0 24px', borderColor: '#F1F5F9' }} />
+      <Section title="Động lực">
+        <Form.Item name="motivation" label={label('Tại sao bạn muốn tham gia?')} rules={[{ required: true, message: 'Vui lòng chia sẻ động lực' }]}>
+          <Input.TextArea placeholder="Chia sẻ lý do và kỳ vọng của bạn với chương trình Talent Venture..." rows={4} maxLength={1000} showCount />
+        </Form.Item>
+      </Section>
 
-      {/* Section 2: Education */}
-      <SectionHeader
-        icon={<BookOutlined />}
-        title="Học vấn"
-        desc="Truong, khoa va nien khoa cua ban"
-        color="#059669"
-        bg="#ECFDF5"
-      />
+      <Section title="CV">
+        <Form.Item name="cv_url">
+          <CvUpload />
+        </Form.Item>
+      </Section>
 
-      <Form.Item
-        name="education"
-        label={<Text style={{ fontSize: 13, fontWeight: 500 }}>Hoc van</Text>}
-      >
-        <Input.TextArea
-          placeholder="VD: Đại học Kinh tế TP.HCM, Khoa Quản trị kinh doanh, 2022-2026"
-          rows={2}
-          maxLength={500}
-          showCount
-          style={{ borderRadius: 10 }}
-        />
-      </Form.Item>
-
-      <Form.Item
-        name="experience"
-        label={<Text style={{ fontSize: 13, fontWeight: 500 }}>Kinh nghiệm</Text>}
-      >
-        <Input.TextArea
-          placeholder="Mô tả các kinh nghiệm làm việc, thực tập, dự án đã tham gia..."
-          rows={3}
-          maxLength={1000}
-          showCount
-          style={{ borderRadius: 10 }}
-        />
-      </Form.Item>
-
-      <Divider style={{ margin: '8px 0 24px', borderColor: '#F1F5F9' }} />
-
-      {/* Section 3: Skills */}
-      <SectionHeader
-        icon={<ToolOutlined />}
-        title="Kỹ năng"
-        desc="Liệt kê các kỹ năng chuyên môn và mềm của bạn"
-        color="#7C3AED"
-        bg="#F5F3FF"
-      />
-
-      <Form.Item
-        name="skills"
-        label={<Text style={{ fontSize: 13, fontWeight: 500 }}>Ky nang</Text>}
-      >
-        <Input.TextArea
-          placeholder="VD: Marketing, Excel, Thiết kế, Lập trình, Quản lý..."
-          rows={2}
-          maxLength={500}
-          showCount
-          style={{ borderRadius: 10 }}
-        />
-      </Form.Item>
-
-      <Divider style={{ margin: '8px 0 24px', borderColor: '#F1F5F9' }} />
-
-      {/* Section 4: Motivation */}
-      <SectionHeader
-        icon={<FireOutlined />}
-        title="Dong luc tham gia"
-        desc="Chia se ly do ban muon tham gia chuong trinh"
-        color="#F59E0B"
-        bg="#FFFBEB"
-      />
-
-      <Form.Item
-        name="motivation"
-        label={<Text style={{ fontSize: 13, fontWeight: 500 }}>Dong luc tham gia chuong trinh</Text>}
-        rules={[{ required: true, message: 'Vui lòng chia sẻ động lực của bạn' }]}
-      >
-        <Input.TextArea
-          placeholder="Tai sao ban muon tham gia Talent Venture? Ban ky vong gi tu chuong trinh nay?"
-          rows={4}
-          maxLength={1000}
-          showCount
-          style={{ borderRadius: 10 }}
-        />
-      </Form.Item>
-
-      <Divider style={{ margin: '8px 0 24px', borderColor: '#F1F5F9' }} />
-
-      {/* Section 5: CV */}
-      <SectionHeader
-        icon={<FilePdfOutlined />}
-        title="CV (PDF)"
-        desc="Tai len CV moi nhat cua ban, toi da 10MB"
-        color="#DC2626"
-        bg="#FEF2F2"
-      />
-
-      <Form.Item name="cv_url">
-        <CvUpload />
-      </Form.Item>
-
-      <Divider style={{ margin: '8px 0 24px', borderColor: '#F1F5F9' }} />
-
-      {/* Submit */}
-      <Form.Item style={{ marginBottom: 0 }}>
+      <Form.Item style={{ marginBottom: 0, paddingTop: 4 }}>
         <Button
           type="primary"
           htmlType="submit"
           icon={<SaveOutlined />}
-          size="large"
           style={{
-            borderRadius: 12,
-            height: 48,
-            paddingInline: 36,
+            height: 40,
+            paddingInline: 28,
             fontWeight: 600,
-            fontSize: 15,
-            background: '#4F46E5',
-            borderColor: '#4F46E5',
-            boxShadow: '0 4px 12px rgba(79,70,229,0.3)',
+            fontSize: 14,
+            borderRadius: 8,
           }}
         >
-          Luu ho so
+          Lưu hồ sơ
         </Button>
       </Form.Item>
     </Form>
