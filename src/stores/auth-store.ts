@@ -33,7 +33,8 @@ const TOKEN_KEY = 'access_token';
 
 function persistToken(token: string) {
   localStorage.setItem(TOKEN_KEY, token);
-  document.cookie = `${TOKEN_KEY}=${token}; path=/; max-age=${60 * 60 * 24 * 7}; samesite=lax`;
+  const secure = window.location.protocol === 'https:' ? '; secure' : '';
+  document.cookie = `${TOKEN_KEY}=${token}; path=/; max-age=${60 * 60 * 24 * 7}; samesite=lax${secure}`;
 }
 
 function clearToken() {

@@ -4,7 +4,15 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useChatStore } from '@/stores/chat-store';
 import type { Message } from '@/types';
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:4000/ws';
+function getWsUrl() {
+  const env = process.env.NEXT_PUBLIC_WS_URL;
+  if (env) return env;
+  if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+    return `wss://${window.location.host}/ws`;
+  }
+  return 'ws://localhost:4000/ws';
+}
+const WS_URL = getWsUrl();
 const MAX_RETRIES = 5;
 
 export function useWebSocket(conversationId: string) {
