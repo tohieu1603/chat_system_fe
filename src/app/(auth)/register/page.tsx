@@ -9,6 +9,12 @@ import { useAuthStore } from '@/stores/auth-store';
 
 const { Title, Text } = Typography;
 
+const ROLE_REDIRECT: Record<string, string> = {
+  ADMIN: '/admin',
+  DEV: '/dev',
+  CANDIDATE: '/tong-quan',
+};
+
 const COMPANY_SIZES = ['1-10', '10-50', '50-100', '100-500', '500+'];
 
 const INDUSTRIES = [
@@ -48,7 +54,7 @@ export default function RegisterPage() {
       const step2Values = await form.validateFields(['company_name', 'company_size', 'industry']);
       const { confirm_password, ...rest } = step1Data as any;
       await register({ ...rest, ...step2Values });
-      router.push('/dashboard');
+      router.push('/');
     } catch (err: any) {
       const msg = err?.response?.data?.message ?? 'Đăng ký thất bại. Vui lòng thử lại.';
       message.error(msg);

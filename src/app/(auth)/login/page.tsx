@@ -8,23 +8,15 @@ import { useAuthStore } from '@/stores/auth-store';
 
 const { Title, Text } = Typography;
 
-const ROLE_REDIRECT: Record<string, string> = {
-  ADMIN: '/admin',
-  DEV: '/dev',
-  CANDIDATE: '/tong-quan',
-};
-
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isLoading, user } = useAuthStore();
+  const { login, isLoading } = useAuthStore();
   const { message } = App.useApp();
 
   async function onFinish(values: { email: string; password: string }) {
     try {
       await login(values.email, values.password);
-      const currentUser = useAuthStore.getState().user;
-      const redirect = currentUser ? (ROLE_REDIRECT[currentUser.role] ?? '/dashboard') : '/dashboard';
-      router.push(redirect);
+      router.push('/');
     } catch (err: any) {
       const msg = err?.response?.data?.message ?? 'Đăng nhập thất bại. Vui lòng thử lại.';
       message.error(msg);
