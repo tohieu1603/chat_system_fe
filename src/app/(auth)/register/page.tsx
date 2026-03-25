@@ -54,7 +54,8 @@ export default function RegisterPage() {
       const step2Values = await form.validateFields(['company_name', 'company_size', 'industry']);
       const { confirm_password, ...rest } = step1Data as any;
       await register({ ...rest, ...step2Values });
-      router.push('/');
+      const currentUser = useAuthStore.getState().user;
+      router.push(ROLE_REDIRECT[currentUser?.role ?? ''] ?? '/tong-quan');
     } catch (err: any) {
       const msg = err?.response?.data?.message ?? 'Đăng ký thất bại. Vui lòng thử lại.';
       message.error(msg);

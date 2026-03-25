@@ -8,6 +8,12 @@ import { useAuthStore } from '@/stores/auth-store';
 
 const { Title, Text } = Typography;
 
+const ROLE_HOME: Record<string, string> = {
+  ADMIN: '/admin',
+  DEV: '/dev',
+  CANDIDATE: '/tong-quan',
+};
+
 export default function LoginPage() {
   const router = useRouter();
   const { login, isLoading } = useAuthStore();
@@ -16,7 +22,8 @@ export default function LoginPage() {
   async function onFinish(values: { email: string; password: string }) {
     try {
       await login(values.email, values.password);
-      router.push('/');
+      const currentUser = useAuthStore.getState().user;
+      router.push(ROLE_HOME[currentUser?.role ?? ''] ?? '/tong-quan');
     } catch (err: any) {
       const msg = err?.response?.data?.message ?? 'Đăng nhập thất bại. Vui lòng thử lại.';
       message.error(msg);
